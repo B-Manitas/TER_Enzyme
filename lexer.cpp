@@ -21,6 +21,20 @@ enum state
     PC
 };
 
+enum unit
+{
+    uH,
+    mH
+};
+
+enum ponct
+{
+    ARROW,
+    SEMICOLON,
+    COLON,
+    PLUS,
+};
+
 struct UL
 {
     state type;
@@ -87,9 +101,7 @@ UL parser(FILE *fp)
 
         // Stop the program if the file is empty
         if (charac == EOF)
-        {
             return UL{END, 0};
-        }
 
         switch (state)
         {
@@ -99,8 +111,14 @@ UL parser(FILE *fp)
                 continue;
 
             // Extract ponctuation
-            if (charac == ';' or charac == ':' or charac == '+' or charac == '|')
-                return UL{PONCT, charac};
+            if (charac == ';')
+                return UL{PONCT, ponct::SEMICOLON};
+
+            if (charac == ':')
+                return UL{PONCT, ponct::COLON};
+
+            if (charac == '+')
+                return UL{PONCT, ponct::PLUS};
 
             // Extract the - and the ->
             if (charac == '-')
@@ -168,10 +186,19 @@ UL parser(FILE *fp)
                 return ul;
             }
 
+            if (charac == EOF)
+                return UL{ERROR, 0};
+
             buffer[i++] = charac;
             continue;
 
         case IDENT_P:
+            if (buffer[i - 1] == 'u' and charac == 'H')
+                return UL{UNIT, unit::uH};
+
+            if (buffer[i - 1] == 'm' and charac == 'H')
+                return UL{UNIT, unit::mH};
+
             if ((charac >= 'a' and charac <= 'z') or (charac >= 'A' and charac <= 'Z') or (charac >= '0' and charac <= '9'))
             {
                 state = IDENT_P;
@@ -187,7 +214,7 @@ UL parser(FILE *fp)
 
         case PF:
             if (charac == '>')
-                return UL{PONCT, '->'};
+                return UL{PONCT, ponct::ARROW};
 
             state = STD;
             ungetc(charac, fp);
