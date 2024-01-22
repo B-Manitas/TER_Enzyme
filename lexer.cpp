@@ -17,7 +17,8 @@ enum state
     ERROR,
     UNIT,
     END,
-    PF
+    PF,
+    PC
 };
 
 struct UL
@@ -133,6 +134,14 @@ UL parser(FILE *fp)
                 continue;
             }
 
+            // Extract the comments
+            if (charac == '/')
+            {
+                state = PC;
+                buffer[i++] = charac;
+                continue;
+            }
+            
             // Return error if the character is not recognized
             return UL{ERROR, 0};
 
@@ -183,6 +192,13 @@ UL parser(FILE *fp)
             state = STD;
             ungetc(charac, fp);
             buffer[i] = 0;
+
+        case PC:
+            if (charac == '/')
+                return UL{PC, 0};
+
+            else 
+                return UL{ERROR, 0};
 
         default:
             break;
