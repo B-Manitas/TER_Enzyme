@@ -20,6 +20,7 @@ enum state
     END,
     PROBABLY_ARROW,
     PROBABLY_COMMENT,
+    COMMENT
 };
 
 enum unit
@@ -181,7 +182,7 @@ UL parser(FILE *fp)
             // Extract the comments
             if (charac == '/')
             {
-                state = PC;
+                state = PROBABLY_COMMENT;
                 buffer[i++] = charac;
                 continue;
             }
@@ -260,12 +261,22 @@ UL parser(FILE *fp)
                 return UL{PONCT, ponct::MINUS};
 
 
-        case PC:
-            if (charac == '/')
-                return UL{PC, 0};
+        case PROBABLY_COMMENT:
+            if (buffer[i - 1] == '/' and charac == '/')
+            {
+                state = COMMENT;
+                continue;
+            }
 
-            else 
+            else
                 return UL{ERROR, 0};
+
+        case COMMENT:
+            if (charac == '\n')
+                state = STD;
+
+            else
+                continue;
 
         default:
             break;
