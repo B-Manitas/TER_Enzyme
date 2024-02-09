@@ -33,7 +33,9 @@ enum ponct
     ARROW,
     SEMICOLON,
     COLON,
+    COMMA,
     PLUS,
+    VBAR,
 };
 
 struct UL
@@ -111,7 +113,7 @@ UL parser(FILE *fp)
         {
         case STD:
             // Ignore the spaces and the new lines
-            if (charac == ' ' or charac == '\n')
+            if (charac == ' ' or charac == '\t')
                 continue;
 
             // Extract ponctuation
@@ -123,6 +125,12 @@ UL parser(FILE *fp)
 
             if (charac == '+')
                 return UL{PONCT, ponct::PLUS};
+
+            if (charac == '|')
+                return UL{PONCT, ponct::VBAR};
+
+            if (charac == ',')
+                return UL{PONCT, ponct::COMMA};
 
             // Extract the - and the ->
             if (charac == '-')
