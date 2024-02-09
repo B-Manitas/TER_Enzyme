@@ -284,7 +284,82 @@ UL parser(FILE *fp)
     }
 }
 
-int main()
+void print_ul(UL ul)
+{
+    switch (ul.type)
+    {
+    case END:
+        printf("END\n");
+        break;
+    case IDENT:
+        printf("IDENT(%d) ", ul.valeur.i);
+        break;
+
+    case PONCT:
+        switch (ul.valeur.i)
+        {
+        case ponct::ARROW:
+            printf("-> ");
+            break;
+
+        case ponct::SEMICOLON:
+            printf("; ");
+            break;
+
+        case ponct::COLON:
+            printf(": ");
+            break;
+
+        case ponct::PLUS:
+            printf("+ ");
+            break;
+
+        case ponct::MINUS:
+            printf("- ");
+            break;
+
+        case ponct::VBAR:
+            printf("| ");
+            break;
+
+        case ponct::COMMA:
+            printf(", ");
+            break;
+
+        default:
+            break;
+        }
+        break;
+
+    case NUM:
+        printf("NUM(%f) ", ul.valeur.f);
+        break;
+
+    case ERROR:
+        printf("ERROR ");
+        break;
+
+    case UNIT:
+        switch (ul.valeur.i)
+        {
+        case unit::uM:
+            printf("uM ");
+            break;
+
+        case unit::mM:
+            printf("mM ");
+            break;
+
+        default:
+            break;
+        }
+        break;
+
+    default:
+        break;
+    }
+}
+
 {
     // Open the file
     FILE *fp;
