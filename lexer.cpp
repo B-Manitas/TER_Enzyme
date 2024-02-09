@@ -24,8 +24,8 @@ enum state
 
 enum unit
 {
-    uH,
-    mH
+    uM,
+    mM
 };
 
 enum ponct
@@ -136,6 +136,19 @@ UL parser(FILE *fp)
             if (charac == '"')
             {
                 state = IDENT;
+                continue;
+            }
+
+            if (charac == 'u')
+            {
+                state = IDENT_P;
+                buffer[i++] = charac;
+                continue;
+            }
+
+            if (charac == 'm')
+            {
+                state = IDENT_P;
                 buffer[i++] = charac;
                 continue;
             }
@@ -197,11 +210,12 @@ UL parser(FILE *fp)
             continue;
 
         case IDENT_P:
-            if (buffer[i - 1] == 'u' and charac == 'H')
-                return UL{UNIT, unit::uH};
+            if (buffer[i - 1] == 'u' and charac == 'M')
+                return UL{UNIT, unit::uM};
 
-            if (buffer[i - 1] == 'm' and charac == 'H')
-                return UL{UNIT, unit::mH};
+            if (buffer[i - 1] == 'm' and charac == 'M')
+                return UL{UNIT, unit::mM};
+
 
             if ((charac >= 'a' and charac <= 'z') or (charac >= 'A' and charac <= 'Z') or (charac >= '0' and charac <= '9'))
             {
