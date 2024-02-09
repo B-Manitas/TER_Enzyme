@@ -197,17 +197,25 @@ UL parser(FILE *fp)
         case IDENT:
             if (charac == '"')
             {
-                state = STD;
-                UL ul = UL{IDENT, index(buffer, true)};
-                buffer[i] = 0;
-                return ul;
+                int id = index(buffer, false);
+
+                if (id == -1)
+                {
+                    UL ul = UL{IDENT, index(buffer, true)};
+                    memset(buffer, 0, 1024);
+                    return ul;
+                }
+                
+                return UL{IDENT, id};
             }
 
-            if (charac == EOF)
+            else if (charac == EOF)
                 return UL{ERROR, 0};
 
-            buffer[i++] = charac;
-            continue;
+            else {
+                buffer[i++] = charac;
+                continue;
+            }
 
         case IDENT_P:
             if (buffer[i - 1] == 'u' and charac == 'M')
@@ -216,6 +224,17 @@ UL parser(FILE *fp)
             if (buffer[i - 1] == 'm' and charac == 'M')
                 return UL{UNIT, unit::mM};
 
+            if (charac == ' ')
+            {
+                ungetc(charac, fp);
+
+                int id = index(buffer, false);
+
+                if (id == -1)
+                    return UL{IDENT, index(buffer, true)};
+
+                return UL{IDENT, id};
+            }
 
             if ((charac >= 'a' and charac <= 'z') or (charac >= 'A' and charac <= 'Z') or (charac >= '0' and charac <= '9'))
             {
