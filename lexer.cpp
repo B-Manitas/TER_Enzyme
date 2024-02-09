@@ -93,7 +93,7 @@ int index(char *s, bool enter)
     return -2;
 }
 
-UL parser(FILE *fp)
+UL lexer(FILE *fp)
 {
     int charac;
     int state = STD;
@@ -360,13 +360,35 @@ void print_ul(UL ul)
     }
 }
 
+int main(const int argc, const char **argv)
 {
     // Open the file
     FILE *fp;
-    fp = fopen("data", "r");
+
+    // Check if the file name is missing
+    if (argc < 2)
+    {
+        printf("Error: the file name is missing\n");
+        return 1;
+    }
+
+    else
+        fp = fopen(argv[1], "r");
+
+    // Check if the file could not be opened
+    if (fp == NULL)
+    {
+        printf("Error: the file could not be opened\n");
+        return 1;
+    }
 
     // Read the file
-    parser(fp);
+    UL ul = lexer(fp);
+    while (ul.type != END_OF_FILE)
+    {
+        print_ul(ul);
+        ul = lexer(fp);
+    }
 
     // Close the file
     fclose(fp);
