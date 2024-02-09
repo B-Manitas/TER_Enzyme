@@ -18,8 +18,8 @@ enum state
     UNIT,
     END_OF_FILE,
     END,
-    PF,
-    PC
+    PROBABLY_ARROW,
+    PROBABLY_COMMENT,
 };
 
 enum unit
@@ -36,6 +36,7 @@ enum ponct
     COMMA,
     PLUS,
     VBAR,
+    MINUS
 };
 
 struct UL
@@ -135,7 +136,7 @@ UL parser(FILE *fp)
             // Extract the - and the ->
             if (charac == '-')
             {
-                state = PF;
+                state = PROBABLY_ARROW;
                 buffer[i++] = charac;
                 continue;
             }
@@ -251,19 +252,13 @@ UL parser(FILE *fp)
                 continue;
             }
 
-            state = STD;
-            ungetc(charac, fp);
-            buffer[i] = 0;
-
-            return UL{IDENT, index(buffer, true)};
-
-        case PF:
+        case PROBABLY_ARROW:
             if (charac == '>')
                 return UL{PONCT, ponct::ARROW};
 
-            state = STD;
-            ungetc(charac, fp);
-            buffer[i] = 0;
+            else
+                return UL{PONCT, ponct::MINUS};
+
 
         case PC:
             if (charac == '/')
