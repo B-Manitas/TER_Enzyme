@@ -16,6 +16,7 @@ enum state
     NUM,
     ERROR,
     UNIT,
+    END_OF_FILE,
     END,
     PF,
     PC
@@ -101,6 +102,9 @@ UL parser(FILE *fp)
 
         // Stop the program if the file is empty
         if (charac == EOF)
+            return UL{END_OF_FILE, 0};
+
+        if (charac == '\n')
             return UL{END, 0};
 
         switch (state)
