@@ -1,104 +1,55 @@
-#include <stdio.h>
-#include <cstdlib>
-#include <string.h>
+#include "../include/lexer.hpp"
+#include <exception>
 
-// Define the hash table
-const int HASH_SIZE = 150000;
-static char *table[HASH_SIZE];
+// CONSTRUCTOR
+Lexer::Lexer() {}
+Lexer::~Lexer() {}
 
-// Define the state of the automata
-enum state
-{
-    STD,
-    IDENT,
-    IDENT_P,
-    PONCT,
-    NUM,
-    ERROR,
-    UNIT,
-    END_OF_FILE,
-    END,
-    PROBABLY_ARROW,
-    PROBABLY_COMMENT,
-    COMMENT
-};
-
-enum unit
-{
-    uM,
-    mM
-};
-
-enum ponct
-{
-    ARROW,
-    SEMICOLON,
-    COLON,
-    COMMA,
-    PLUS,
-    VBAR,
-    MINUS
-};
-
-struct UL
-{
-    state type;
-    union
-    {
-        int i;
-        float f;
-    } valeur;
-
-    // Constructors
-    UL(state t, int v) : type(t), valeur{.i = v} {}
-    UL(state t, float v) : type(t), valeur{.f = v} {}
-    UL(state t, double v) : type(t), valeur{.f = (float)v} {}
-};
-
-int hash(char *s)
+// METHODS
+int Lexer::hash(char *s)
 {
     int h = 11;
     while (*s != 0)
-        h = ((h * 19) ^ int(*s++)) % HASH_SIZE;
+        h = ((h * 19) ^ int(*s++)) % m_HASH_SIZE;
 
     if (h < 0)
-        h = h + HASH_SIZE;
+        h = h + m_HASH_SIZE;
 
     return h;
 }
 
-int index(char *s, bool enter)
+int Lexer::index(char *s, bool insert)
 {
     int h = hash(s);
 
-    for (int n = 0; n < HASH_SIZE; n++)
+    for (int n = 0; n < m_HASH_SIZE; n++)
     {
-        char *t = table[h];
+        char *t = m_table[h];
 
         if (t == 0)
         {
-            if (!enter)
+            if (!insert)
                 return -1;
 
-            table[h] = strdup(s);
+            m_table[h] = strdup(s);
             return h;
         }
 
         if (strcmp(s, t) == 0)
             return h;
 
-        h = (h + 41) % HASH_SIZE;
+        h = (h + 41) % m_HASH_SIZE;
     }
 
     return -2;
 }
 
-UL lexer(FILE *fp)
+UL Lexer::lex(FILE *fp)
 {
-    int charac;
+    int charac = 0;
     int state = STD;
     int i = 0;
-    char buffer[1024];
+    char buffer[1024] = {0};
 
     for (;;)
     {
@@ -120,19 +71,19 @@ UL lexer(FILE *fp)
 
             // Extract ponctuation
             if (charac == ';')
-                return UL{PONCT, ponct::SEMICOLON};
+                return UL{PONCT, Ponct::SEMICOLON};
 
             if (charac == ':')
-                return UL{PONCT, ponct::COLON};
+                return UL{PONCT, Ponct::COLON};
 
             if (charac == '+')
-                return UL{PONCT, ponct::PLUS};
+                return UL{PONCT, Ponct::PLUS};
 
             if (charac == '|')
-                return UL{PONCT, ponct::VBAR};
+                return UL{PONCT, Ponct::VBAR};
 
             if (charac == ',')
-                return UL{PONCT, ponct::COMMA};
+                return UL{PONCT, Ponct::COMMA};
 
             // Extract the - and the ->
             if (charac == '-')
@@ -186,7 +137,7 @@ UL lexer(FILE *fp)
                 buffer[i++] = charac;
                 continue;
             }
-            
+
             // Return error if the character is not recognized
             return UL{ERROR, 0};
 
@@ -210,29 +161,27 @@ UL lexer(FILE *fp)
                 int id = index(buffer, false);
 
                 if (id == -1)
-                {
-                    UL ul = UL{IDENT, index(buffer, true)};
-                    memset(buffer, 0, 1024);
-                    return ul;
-                }
-                
-                return UL{IDENT, id};
+                    return UL(IDENT, index(buffer, true));
+
+                else
+                    return UL{IDENT, id};
             }
 
             else if (charac == EOF)
                 return UL{ERROR, 0};
 
-            else {
+            else
+            {
                 buffer[i++] = charac;
                 continue;
             }
 
         case IDENT_P:
             if (buffer[i - 1] == 'u' and charac == 'M')
-                return UL{UNIT, unit::uM};
+                return UL{UNIT, Unit::uM};
 
             if (buffer[i - 1] == 'm' and charac == 'M')
-                return UL{UNIT, unit::mM};
+                return UL{UNIT, Unit::mM};
 
             if (charac == ' ')
             {
@@ -255,11 +204,10 @@ UL lexer(FILE *fp)
 
         case PROBABLY_ARROW:
             if (charac == '>')
-                return UL{PONCT, ponct::ARROW};
+                return UL{PONCT, Ponct::ARROW};
 
             else
-                return UL{PONCT, ponct::MINUS};
-
+                return UL{PONCT, Ponct::MINUS};
 
         case PROBABLY_COMMENT:
             if (buffer[i - 1] == '/' and charac == '/')
@@ -284,7 +232,7 @@ UL lexer(FILE *fp)
     }
 }
 
-void print_ul(UL ul)
+void Lexer::print_ul(UL ul)
 {
     switch (ul.type)
     {
@@ -298,31 +246,31 @@ void print_ul(UL ul)
     case PONCT:
         switch (ul.valeur.i)
         {
-        case ponct::ARROW:
+        case Ponct::ARROW:
             printf("-> ");
             break;
 
-        case ponct::SEMICOLON:
+        case Ponct::SEMICOLON:
             printf("; ");
             break;
 
-        case ponct::COLON:
+        case Ponct::COLON:
             printf(": ");
             break;
 
-        case ponct::PLUS:
+        case Ponct::PLUS:
             printf("+ ");
             break;
 
-        case ponct::MINUS:
+        case Ponct::MINUS:
             printf("- ");
             break;
 
-        case ponct::VBAR:
+        case Ponct::VBAR:
             printf("| ");
             break;
 
-        case ponct::COMMA:
+        case Ponct::COMMA:
             printf(", ");
             break;
 
@@ -342,11 +290,11 @@ void print_ul(UL ul)
     case UNIT:
         switch (ul.valeur.i)
         {
-        case unit::uM:
+        case Unit::uM:
             printf("uM ");
             break;
 
-        case unit::mM:
+        case Unit::mM:
             printf("mM ");
             break;
 
@@ -358,40 +306,4 @@ void print_ul(UL ul)
     default:
         break;
     }
-}
-
-int main(const int argc, const char **argv)
-{
-    // Open the file
-    FILE *fp;
-
-    // Check if the file name is missing
-    if (argc < 2)
-    {
-        printf("Error: the file name is missing\n");
-        return 1;
-    }
-
-    else
-        fp = fopen(argv[1], "r");
-
-    // Check if the file could not be opened
-    if (fp == NULL)
-    {
-        printf("Error: the file could not be opened\n");
-        return 1;
-    }
-
-    // Read the file
-    UL ul = lexer(fp);
-    while (ul.type != END_OF_FILE)
-    {
-        print_ul(ul);
-        ul = lexer(fp);
-    }
-
-    // Close the file
-    fclose(fp);
-
-    return 0;
 }
