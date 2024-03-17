@@ -1,4 +1,5 @@
 #include "include/lexer.hpp"
+#include "include/parser.hpp"
 
 int main(const int argc, const char **argv)
 {
@@ -23,24 +24,18 @@ int main(const int argc, const char **argv)
     }
 
     Lexer lexer = Lexer();
+    Parser parser = Parser();
+    std::vector<UL> data_tokenized = lexer.lex_all(fp);
 
-    // Read the file
-    UL ul = lexer.lex(fp);
-    while (ul.type != END_OF_FILE)
-    {
-        lexer.print_ul(ul);
-        ul = lexer.lex(fp);
-    }
+    std::vector<instr> instructions = std::vector<instr>{};
+    std::vector<react> reactions = std::vector<react>{};
 
-    // Close the file
+    parser.parse(data_tokenized, reactions, instructions);
+
+    parser.print_react(reactions);
+    parser.print_instr(instructions);
+
     fclose(fp);
-
-    // Lexer lexer = Lexer();
-    // int id = lexer.index("NADP", true);
-    // printf("id: %d\n", id);
-
-    // id = lexer.index("NADPj", false);
-    // printf("id: %d\n", id);
 
     return 0;
 }
