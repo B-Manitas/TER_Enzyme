@@ -1,6 +1,9 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
+/**
+ * @brief The State enum represents the different types of tokens.
+ */
 enum State
 {
     COMMENT,
@@ -18,6 +21,9 @@ enum State
     KEYWORD
 };
 
+/**
+ * @brief The Unit enum represents the different units.
+ */
 enum Unit
 {
     uM,
@@ -34,6 +40,9 @@ enum Keyword
     SPEED
 };
 
+/**
+ * @brief The Ponct enum corresponds to the different punctuation marks.
+ */
 enum Ponct
 {
     ARROW,
@@ -48,6 +57,12 @@ enum Ponct
     EQUAL
 };
 
+/**
+ * @brief The UL struct represents a token.
+ * 
+ * @param type The type of the token
+ * @param valeur The value of the token
+ */
 struct UL
 {
     State type;
