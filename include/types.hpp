@@ -14,13 +14,24 @@ enum State
     PROBABLY_ARROW,
     PROBABLY_COMMENT,
     STD,
-    UNIT
+    UNIT,
+    KEYWORD
 };
 
 enum Unit
 {
     uM,
     mM
+};
+
+/**
+ * @brief The Keyword enum represents the different keywords used in the language.
+ */
+enum Keyword
+{
+    INIT,
+    DIAMETER,
+    SPEED
 };
 
 enum Ponct
@@ -31,7 +42,10 @@ enum Ponct
     MINUS,
     PLUS,
     SEMICOLON,
-    VBAR
+    VBAR,
+    PARENTHESIS_OPEN,
+    PARENTHESIS_CLOSE,
+    EQUAL
 };
 
 struct UL
