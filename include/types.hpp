@@ -51,16 +51,35 @@ enum Ponct
 struct UL
 {
     State type;
-    union
-    {
-        int i;
-        float f;
-    } valeur;
+    float valeur;
+    // union
+    // {
+    //     int i;
+    //     float f;
+    // } valeur;
 
     // Constructors
-    UL(State t, int v) : type(t), valeur{.i = v} {}
-    UL(State t, float v) : type(t), valeur{.f = v} {}
-    UL(State t, double v) : type(t), valeur{.f = (float)v} {}
+    /**
+     * @brief Construct a new UL object
+     * 
+     * @param t The type of the token
+     * @param v The value of the token
+     */
+    UL(State t, int v) : type(t), valeur{(float)v} {}
+    /**
+     * @brief Construct a new UL object
+     * 
+     * @param t The type of the token
+     * @param v The value of the token
+     */
+    UL(State t, float v) : type(t), valeur{v} {}
+    /**
+     * @brief Construct a new UL object
+     * 
+     * @param t The type of the token
+     * @param v The value of the token
+     */
+    UL(State t, double v) : type(t), valeur{(float)v} {}
 };
 
 #endif
