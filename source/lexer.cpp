@@ -230,8 +230,16 @@ UL Lexer::lex(FILE *fp)
             if (!strcmp(buffer, "vitess") and charac == 'e')
                 return UL{KEYWORD, Keyword::SPEED};
 
-            // If the character is a space, return the identifier found
-            if (charac == ' ')
+            // Extract the identifiers starting with a letter
+            if ((charac >= 'a' and charac <= 'z') or (charac >= 'A' and charac <= 'Z') or (charac >= '0' and charac <= '9'))
+            {
+                state = IDENT_P;
+                buffer[i++] = charac;
+                continue;
+            }
+
+            else
+            // If the identifier is finished, return the token
             {
                 ungetc(charac, fp);
 
@@ -241,13 +249,6 @@ UL Lexer::lex(FILE *fp)
                     return UL{IDENT, index(buffer, true)};
 
                 return UL{IDENT, id};
-            }
-
-            if ((charac >= 'a' and charac <= 'z') or (charac >= 'A' and charac <= 'Z') or (charac >= '0' and charac <= '9'))
-            {
-                state = IDENT_P;
-                buffer[i++] = charac;
-                continue;
             }
 
         case PROBABLY_ARROW:
