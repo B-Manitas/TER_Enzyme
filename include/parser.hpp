@@ -3,40 +3,9 @@
 
 #include <vector>
 #include <map>
+
+#include "enums.hpp"
 #include "types.hpp"
-
-/**
- * @brief The react struct represents a reaction.
- */
-struct react
-{
-    // The id of the enzyme
-    float ident = 0;
-
-    // The substrates represented by their id. (0 if not present)
-    // map<substrate_id, quantity> substrates
-    std::map<float, float> substrates = {{0, 0}, {1, 0}};
-
-    // The products represented by their id. (0 if not present)
-    // map<product_id, quantity> products
-    std::map<float, float> products = {{0, 0}, {1, 0}};
-
-    // The quantity in mM of sub_1 and sub_2.
-    // map<substrate_id, mM> mM
-    std::map<float, float> mM = {{0, 0}, {1, 0}};
-
-    float kcat = 0;
-};
-
-/**
- * @brief The instr struct represents an instruction.
- */
-struct instr
-{
-    float ident = 0;
-    Keyword type;
-    float value = 0;
-};
 
 /**
  * @brief The Parser class is used to parse the tokenized data.

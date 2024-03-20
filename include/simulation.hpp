@@ -11,24 +11,7 @@
 
 #include "lexer.hpp"
 #include "parser.hpp"
-
-struct Molecule
-{
-    int ident = 0;
-    float diameter = 1;
-    float speed = 1;
-    float x = 0, y = 0, z = 0;
-
-    // Permet de gerer la position de départ
-    // bool is_finished_move = false;
-    // Permet de savoir si une molécule a été vue par un enzyme
-    bool is_seen = false;
-
-    Molecule *next; // Pointeur vers la prochaine molécule d'une même zone
-    Molecule *prev; // Pointeur vers la molécule précédente d'une même zone
-
-    Molecule(int ident) : ident(ident) {}
-};
+#include "types.hpp"
 
 class Simulation
 {

@@ -1,7 +1,10 @@
 #include <stdexcept>
 #include <tuple>
 #include <string>
+
 #include "../include/parser.hpp"
+#include "../include/enums.hpp"
+#include "../include/types.hpp"
 
 // 'PARSE' METHODS
 void Parser::parse(std::vector<UL> data_tokenized, std::vector<react> &reactions, std::vector<instr> &instructions)
