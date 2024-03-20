@@ -88,6 +88,10 @@ instr Parser::instruction(std::vector<UL> &data_tokenized)
     // Get the value
     i.value = next_token(data_tokenized, NUM, "value error");
 
+    // If the instruction is diameter, multiply the value by 10
+    if (i.type == Keyword::DIAMETER)
+        i.value *= 10;
+
     // Next symbol is semicolon
     next_symbol_except(data_tokenized, SEMICOLON, "syntax_error");
 
