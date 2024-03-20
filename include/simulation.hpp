@@ -23,6 +23,13 @@ private:
     std::vector<std::tuple<float, float, float>> m_start_positions = std::vector<std::tuple<float, float, float>>{};
 
     // PRIVATE METHODS
+    /**
+     * @brief Get the instructions from the tokenized data
+     * map<ident, <count, diameter, speed>>
+     *
+     * @param data_tokenized The tokenized data
+     * @return std::vector<instr> The instructions
+     */
     std::map<int, std::tuple<int, int, int>> __map_instructions();
 
 public:
@@ -36,30 +43,38 @@ public:
     float n_molecules = 0;
 
     // PUBLIC METHODS
+    /**
+     * @brief Initialize the simulation
+     *
+     * @param data_path The path to the data file
+     */
     void init(char *data_path);
+    /**
+     * Initialize the maximum diameter of the molecules
+     */
     void init_max_diameter();
+    /**
+     * Initialize the count of the molecules and the types of molecules
+     */
     void init_count_molecules();
+    /**
+     * Initialize the equidistant positions of the molecules
+     */
     void init_equidistant_positions();
+    /**
+     * Initialize the molecules
+     */
     void init_molecules();
 
+    /**
+     * @brief Read the file and parse it, to get the instructions and reactions of the simulation
+     *
+     * @param data_path The path to the data file
+     */
     void read_file(char *data_path);
 
-    Simulation &operator=(const Simulation &other)
-    {
-        if (this != &other)
-        {
-            // Copier les membres de other vers this
-            m_instructions = other.m_instructions;
-            m_reactions = other.m_reactions;
-            m_start_positions = other.m_start_positions;
-            m_molecules = other.m_molecules;
-            m_ident_molecules = other.m_ident_molecules;
-            max_diameter = other.max_diameter;
-            n_types_molecule = other.n_types_molecule;
-            n_molecules = other.n_molecules;
-        }
-        return *this;
-    }
+    // OPERATORS
+    Simulation &operator=(const Simulation &other);
 };
 
 #endif // SIMULATION_HPP

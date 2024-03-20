@@ -144,3 +144,21 @@ void Simulation::read_file(char *data_path)
     parser.parse(lexer.lex_all(fp), m_reactions, m_instructions);
     fclose(fp);
 }
+
+// ========================
+// OPERATORS
+Simulation &Simulation::operator=(const Simulation &other)
+{
+    if (this != &other)
+    {
+        m_instructions = other.m_instructions;
+        m_reactions = other.m_reactions;
+        m_start_positions = other.m_start_positions;
+        m_molecules = other.m_molecules;
+        m_ident_molecules = other.m_ident_molecules;
+        max_diameter = other.max_diameter;
+        n_types_molecule = other.n_types_molecule;
+        n_molecules = other.n_molecules;
+    }
+    return *this;
+}
