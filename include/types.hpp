@@ -41,6 +41,12 @@ struct UL
 
 /**
  * @brief The react struct represents a reaction.
+ *
+ * @param ident The id of the enzyme
+ * @param substrates The substrates represented by their id. (0 if not present)
+ * @param products The products represented by their id. (0 if not present)
+ * @param mM The quantity in mM of sub_1 and sub_2.
+ * @param kcat The kcat of the enzyme
  */
 struct react
 {
@@ -64,29 +70,54 @@ struct react
 
 /**
  * @brief The instr struct represents an instruction.
+ *
+ * @param type The type of the instruction
+ * @param ident The id of the molecule
  */
 struct instr
 {
-    float ident = 0;
     Keyword type;
-    float value = 0;
+
+    float ident = 0, value = 0;
 };
 
+/**
+ * @brief The Molecule struct represents a molecule.
+ *
+ * @param ident The type identifier of the molecule
+ * @param diameter The diameter of the molecule
+ * @param speed The speed of the molecule
+ * @param x The x position of the molecule
+ * @param y The y position of the molecule
+ * @param z The z position of the molecule
+ * @param is_seen Boolean to check if the molecule has been seen
+ * @param next Pointer to the next molecule in the same zone
+ * @param prev Pointer to the prev molecule in the same zone
+ */
 struct Molecule
 {
+    // The type identifier of the molecule
     int ident = 0;
-    float diameter = 1;
-    float speed = 1;
+
+    // The diameter and speed of the molecule
+    float diameter = 1, speed = 1;
+
+    // Position of the molecule
     float x = 0, y = 0, z = 0;
 
-    // Permet de gerer la position de départ
-    // bool is_finished_move = false;
-    // Permet de savoir si une molécule a été vue par un enzyme
+    // Boolean to check if the molecule has been seen
     bool is_seen = false;
 
-    Molecule *next; // Pointeur vers la prochaine molécule d'une même zone
-    Molecule *prev; // Pointeur vers la molécule précédente d'une même zone
+    // Pointer to the next and prev molecule in the same zone
+    Molecule *next = 0, *prev = 0;
 
+    // Constructors
+    Molecule() = default;
+    /**
+     * @brief Construct a new Molecule object
+     *
+     * @param ident The type identifier of the molecule
+     */
     Molecule(int ident) : ident(ident) {}
 };
 
