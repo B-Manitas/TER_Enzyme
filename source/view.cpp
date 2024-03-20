@@ -12,42 +12,20 @@ View::View(Simulation simulation, int vesicle_radius, int detail_x, int detail_y
                                                                                     m_detail_y(detail_y) {}
 
 // ============================
-// STATIC FUNCTIONS
-
-void View::static_draw_scene()
-{
-    View::instance().draw_scene();
-}
-
-void View::static_on_mouse_move(int x, int y)
-{
-    View::instance().on_mouse_move(x, y);
-}
-
-void View::static_on_mouse_click(int button, int state, int x, int y)
-{
-    View::instance().on_mouse_click(button, state, x, y);
-}
-
-void View::static_on_key_pressed(int key, int x, int y)
-{
-    View::instance().on_key_pressed(key, x, y);
-}
-
-View &View::instance()
-{
-    static View view = View();
-    return view;
-}
-
-// ============================
 // GENERAL FUNCTIONS
-void View::init_opengl()
+void View::init_opengl(int argc, char **argv)
 {
-    View::instance().set_simulation(m_simulation);
+    View::instance().__set_simulation(m_simulation);
+
+    // Initialize GLUT
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(m_width, m_height);
+
+    // Set the window's title
     glutCreateWindow("Diabetic Simulation");
 
+    // Set the display function
     glutDisplayFunc(View::static_draw_scene);
     glutMouseFunc(View::static_on_mouse_click);
     glutSpecialFunc(View::static_on_key_pressed);
@@ -72,15 +50,10 @@ void View::display()
     glutMainLoop();
 }
 
-void View::set_simulation(const Simulation &simulation)
+void View::__set_simulation(const Simulation &simulation)
 {
     m_simulation = simulation;
-    map_colors();
-}
-
-void View::set_map_colors(const std::map<int, std::tuple<float, float, float>> &colors)
-{
-    m_colors = colors;
+    __map_colors();
 }
 
 // ============================
@@ -117,9 +90,9 @@ void View::draw_scene()
     glLoadIdentity();
     gluLookAt(0.0, 0.0, 900.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
 
-    glTranslatef(0.0, 0.0, -m_camera_distance);
-    glRotatef(m_rotate_y, 0.0, 1.0, 0.0);
-    glRotatef(m_rotate_x, 1.0, 0.0, 0.0);
+    glTranslatef(0.0, 0.0, -__m_camera_distance);
+    glRotatef(__m_rotate_y, 0.0, 1.0, 0.0);
+    glRotatef(__m_rotate_x, 1.0, 0.0, 0.0);
 
     draw_vesicle();
     draw_molecules();
@@ -127,42 +100,38 @@ void View::draw_scene()
     glutSwapBuffers();
 }
 
-std::tuple<float, float, float> View::generate_color(int ident)
+std::tuple<float, float, float> View::__generate_color(int ident)
 {
-    // Convertir le nombre en une valeur d'intensité entre 0 et 255
+    // Convert the identifier to an intensity value
     int intensity = static_cast<int>(fmod(ident * 255.0, 256.0));
 
-    // Utiliser l'intensité pour déterminer les composantes R, G et B de la couleur
+    // Use the intensity to generate a color
     std::tuple<float, float, float> color;
-    std::get<0>(color) = (intensity * 3 + rand() % 50) % 256;
-    std::get<1>(color) = (intensity * 5 + rand() % 100) % 256;
-    std::get<2>(color) = (intensity * 7 + rand() % 150) % 256;
-
-    std::get<0>(color) /= 255;
-    std::get<1>(color) /= 255;
-    std::get<2>(color) /= 255;
+    std::get<0>(color) = ((intensity * 3 + rand() % 50) % 256) / 255.0;
+    std::get<1>(color) = ((intensity * 5 + rand() % 100) % 256) / 255.0;
+    std::get<2>(color) = ((intensity * 7 + rand() % 150) % 256) / 255.0;
 
     return color;
 }
 
-void View::map_colors()
+void View::__map_colors()
 {
     for (auto &&ident : m_simulation.m_ident_molecules)
-        m_colors[ident] = generate_color(ident);
+        m_colors[ident] = __generate_color(ident);
 }
 
 // ============================
 // MOUSE EVENT HANDLERS
 void View::on_mouse_move(int x, int y)
 {
-    int deltaX = x - m_last_mouse_x;
-    int deltaY = y - m_last_mouse_y;
+    int deltaX = x - __m_last_mouse_x;
+    int deltaY = y - __m_last_mouse_y;
 
-    m_rotate_x += deltaY * 0.1;
-    m_rotate_y += deltaX * 0.1;
+    __m_rotate_x += deltaY * 0.1;
+    __m_rotate_y += deltaX * 0.1;
 
-    m_last_mouse_x = x;
-    m_last_mouse_y = y;
+    __m_last_mouse_x = x;
+    __m_last_mouse_y = y;
 
     glutPostRedisplay();
 }
@@ -171,8 +140,8 @@ void View::on_mouse_click(int button, int state, int x, int y)
 {
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
-        m_last_mouse_x = x;
-        m_last_mouse_y = y;
+        __m_last_mouse_x = x;
+        __m_last_mouse_y = y;
 
         glutMotionFunc(static_on_mouse_move);
     }
@@ -186,11 +155,11 @@ void View::on_key_pressed(int key, int x, int y)
     switch (key)
     {
     case GLUT_KEY_UP:
-        m_camera_distance = std::max(-1000.0f, m_camera_distance - 10);
+        __m_camera_distance = std::max(-1000.0f, __m_camera_distance - 10);
         break;
 
     case GLUT_KEY_DOWN:
-        m_camera_distance = std::min(100.0f, m_camera_distance + 10);
+        __m_camera_distance = std::min(100.0f, __m_camera_distance + 10);
         break;
 
     default:
@@ -198,4 +167,33 @@ void View::on_key_pressed(int key, int x, int y)
     }
 
     glutPostRedisplay();
+}
+
+// ============================
+// STATIC FUNCTIONS
+
+void View::static_draw_scene()
+{
+    View::instance().draw_scene();
+}
+
+void View::static_on_mouse_move(int x, int y)
+{
+    View::instance().on_mouse_move(x, y);
+}
+
+void View::static_on_mouse_click(int button, int state, int x, int y)
+{
+    View::instance().on_mouse_click(button, state, x, y);
+}
+
+void View::static_on_key_pressed(int key, int x, int y)
+{
+    View::instance().on_key_pressed(key, x, y);
+}
+
+View &View::instance()
+{
+    static View view = View();
+    return view;
 }
