@@ -119,6 +119,9 @@ void View::__map_colors()
                 const int &ident = m_simulation.m_ident_molecules[id_color];
 
                 m_colors[ident] = {r * spacing, g * spacing, b * spacing};
+
+                if (id_color == n_colors - 1)
+                    break;
             }
 }
 
