@@ -216,6 +216,33 @@ void Simulation::move_all_molecules()
         // Else, check if a reaction can occur
         else
         {
+            react reaction;
+            if (__is_reacting(m, molecule_hit, reaction))
+            {
+                // Update the position of the molecule
+                m.position = new_pos;
+
+                // Update the type of the molecule
+                if (reaction.ident == m.ident)
+                {
+                    if (std::get<0>(reaction.products) == molecule_hit.ident)
+                        m.ident = std::get<1>(reaction.products);
+
+                    else
+                        m.ident = std::get<0>(reaction.products);
+                }
+
+                else
+                {
+                    if (std::get<0>(reaction.products) == m.ident)
+                        molecule_hit.ident = std::get<1>(reaction.products);
+
+                    else
+                        molecule_hit.ident = std::get<0>(reaction.products);
+                }
+
+                molecule_hit.is_seen = true;
+            }
         }
     }
 
