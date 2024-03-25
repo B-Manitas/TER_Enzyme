@@ -78,6 +78,36 @@ struct instr
     float ident = 0, value = 0;
 };
 
+// Classe des coordonnées d'une molécule
+struct Coord
+{
+    // The x, y, z position of the molecule
+    float x = 0, y = 0, z = 0;
+
+    // Constructors
+    Coord() = default;
+    /**
+     * @brief Construct a new Coord object
+     *
+     * @param x The x position of the molecule
+     * @param y The y position of the molecule
+     * @param z The z position of the molecule
+     */
+     Coord(float x, float y, float z) : x(x), y(y), z(z) {}
+
+    // Operators ==
+    bool operator==(const Coord &c) const
+    {
+        return x == c.x && y == c.y && z == c.z;
+    }
+
+    // Operators !=
+    bool operator!=(const Coord &c) const
+    {
+        return x != c.x || y != c.y || z != c.z;
+    }
+};
+
 /**
  * @brief The Molecule struct represents a molecule.
  *
@@ -99,8 +129,8 @@ struct Molecule
     // The diameter and speed of the molecule
     float diameter = 1, speed = 1;
 
-    // Position of the molecule
-    float x = 0, y = 0, z = 0;
+    // Position of the molecule with class Coord
+    Coord position;
 
     // Boolean to check if the molecule has been seen
     bool is_seen = false;

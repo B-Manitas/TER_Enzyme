@@ -75,7 +75,7 @@ void View::draw_molecules()
     {
         glPushMatrix();
 
-        glTranslatef(m.x, m.y, m.z);
+        glTranslatef(m.position.x, m.position.y, m.position.z);
         glColor3f(std::get<0>(m_colors[m.ident]), std::get<1>(m_colors[m.ident]), std::get<2>(m_colors[m.ident]));
 
         glutSolidSphere(m.diameter / 2, 5, 5);

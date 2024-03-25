@@ -20,7 +20,7 @@ private:
     std::vector<instr> m_instructions = std::vector<instr>{};
     std::vector<react> m_reactions = std::vector<react>{};
 
-    std::vector<std::tuple<float, float, float>> m_start_positions = std::vector<std::tuple<float, float, float>>{};
+    std::vector<Coord> m_start_positions = std::vector<Coord>{};
 
     // PRIVATE METHODS
     /**
@@ -31,7 +31,7 @@ private:
      * @return std::vector<instr> The instructions
      */
     std::map<int, std::tuple<int, int, int>> __map_instructions();
-    std::tuple<float, float, float> __rand_positions(float x, float y, float z, float speed);
+    Coord __rand_positions(float x, float y, float z, float speed);
     void __is_hit(float x, float y, float z, float diameter, Molecule *molecule_hit = nullptr);
     bool __is_reacting(Molecule &molecule, Molecule &molecule_hit, react *reaction = nullptr);
 

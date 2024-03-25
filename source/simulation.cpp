@@ -1,4 +1,5 @@
 #include "../include/simulation.hpp"
+#include <stdexcept>
 
 // PRIVATE METHODS
 
@@ -40,7 +41,7 @@ std::map<int, std::tuple<int, int, int>> Simulation::__map_instructions()
     return map;
 }
 
-std::tuple<float, float, float> Simulation::__rand_positions(float x, float y, float z, float speed)
+Coord Simulation::__rand_positions(float x, float y, float z, float speed)
 {
     // Generate a random angle in radians
     float angle = (rand() % 360) * M_PI / 180;
@@ -59,7 +60,7 @@ void Simulation::__is_hit(float x, float y, float z, float diameter, Molecule *m
         if (m.is_seen)
             continue;
 
-        float distance = std::sqrt((m.x - x) * (m.x - x) + (m.y - y) * (m.y - y) + (m.z - z) * (m.z - z));
+        float distance = std::sqrt((m.position.x - x) * (m.position.x - x) + (m.position.y - y) * (m.position.y - y) + (m.position.z - z) * (m.position.z - z));
         if (distance < (m.diameter + diameter) / 2)
         {
             molecule_hit = &m;
@@ -165,12 +166,13 @@ void Simulation::init_molecules()
     {
         for (int j = 0; j < std::get<0>(i.second); j++)
         {
-
             Molecule molecule = Molecule(i.first);
             molecule.diameter = std::get<1>(i.second);
             molecule.speed = std::get<2>(i.second);
 
-            std::tie(molecule.x, molecule.y, molecule.z) = m_start_positions[idx];
+            molecule.position.x = m_start_positions[idx].x;
+            molecule.position.y = m_start_positions[idx].y;
+            molecule.position.z = m_start_positions[idx].z;
 
             m_molecules.push_back(molecule);
             idx++;
@@ -193,20 +195,23 @@ void Simulation::move_all_molecules()
         m.is_seen = true;
 
         // Generate a new position for the molecule
-        std::tuple<float, float, float> new_pos = __rand_positions(m.x, m.y, m.z, m.speed);
+        Coord new_pos = __rand_positions(m.position.x, m.position.y, m.position.z, m.speed);
 
-        // Check if the new position is inside the vesicle
-        float distance_from_center = std::sqrt(std::get<0>(new_pos) * std::get<0>(new_pos) + std::get<1>(new_pos) * std::get<1>(new_pos) + std::get<2>(new_pos) * std::get<2>(new_pos));
+        float distance_from_center = std::sqrt(new_pos.x * new_pos.x + new_pos.y * new_pos.y + new_pos.z * new_pos.z);
         if (distance_from_center > vesicle_diameter / 2 - m.diameter / 2)
             continue;
 
         // Check if the molecule has collided with another molecule
         Molecule *molecule_hit = nullptr;
-        __is_hit(std::get<0>(new_pos), std::get<1>(new_pos), std::get<2>(new_pos), m.diameter, molecule_hit);
+        __is_hit(new_pos.x, new_pos.y, new_pos.z, m.diameter, molecule_hit);
 
         // If the molecule has not collided with another molecule, update its position
         if (molecule_hit == nullptr)
-            std::tie(m.x, m.y, m.z) = new_pos;
+        {
+            m.position.x = new_pos.x;
+            m.position.y = new_pos.y;
+            m.position.z = new_pos.z;
+        }
 
         // Else, check if a reaction can occur
         else
