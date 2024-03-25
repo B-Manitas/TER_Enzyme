@@ -43,10 +43,10 @@ public:
     Simulation m_simulation;
 
     // Manage the window's width and height
-    const int m_width = 800, m_height = 600;
+    const int m_width = 1000, m_height = 900;
 
     // Characteristics of the vesicle
-    int m_detail_x = 10, m_detail_y = 10;
+    int m_detail_x = 50, m_detail_y = 10;
     int m_vesicle_radius = 620 / 2;
 
     // CONSTRUCTORS

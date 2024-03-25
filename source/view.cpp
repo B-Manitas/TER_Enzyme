@@ -30,8 +30,8 @@ void View::init_opengl(int argc, char **argv)
     glutMouseFunc(View::static_on_mouse_click);
     glutSpecialFunc(View::static_on_key_pressed);
 
-    // Set the clear color to black
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    // Set the clear color
+    glClearColor(0.137, 0.137, 0.137, 1.0);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -63,7 +63,7 @@ void View::draw_vesicle()
     // Enable blending for transparency
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(1.0, 1.0, 1.0, 0.5);
+    glColor4f(1.0, 1.0, 1.0, 0.1);
 
     // Draw the vesicle sphere
     glutWireSphere(m_vesicle_radius, m_detail_x, m_detail_y);
