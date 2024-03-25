@@ -65,18 +65,18 @@ public:
      * For example: "s1" "s2"
      *
      * @param data_tokenized The tokenized data
-     * @return std::map<float, float> The identifications
+     * @return std::tuple<float, float> The identifications
      */
-    std::map<float, float> idents_series(std::vector<UL> &data_tokenized);
+    std::tuple<float, float> idents_series(std::vector<UL> &data_tokenized);
 
     /**
      * @brief Parse a series of mM from the tokenized vector
      * For example: 200mM 200mM
      *
      * @param data_tokenized The tokenized data
-     * @return std::map<float, float> The mM
+     * @return std::tuple<float, float> The mM
      */
-    std::map<float, float> mM_series(std::vector<UL> &data_tokenized);
+    std::tuple<float, float> mM_series(std::vector<UL> &data_tokenized);
 
     /**
      * @brief Get the value of the current token and move to the next one

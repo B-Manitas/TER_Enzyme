@@ -153,38 +153,38 @@ std::vector<instr> Parser::instructions_series(std::vector<UL> data_tokenized)
     return instructions;
 }
 
-std::map<float, float> Parser::idents_series(std::vector<UL> &data_tokenized)
+std::tuple<float, float> Parser::idents_series(std::vector<UL> &data_tokenized)
 {
-    std::map<float, float> ident = {{0, 0}, {1, 0}};
+    std::tuple<float, float> ident = {0, 0};
 
     // Extract first ident
-    ident[0] = next_token(data_tokenized, IDENT, "ident");
+    std::get<0>(ident) = next_token(data_tokenized, IDENT, "ident");
 
     // If there is a plus, extract the second ident
     if (next_symbol(data_tokenized, Ponct::PLUS))
-        ident[1] = next_token(data_tokenized, IDENT, "ident");
+        std::get<1>(ident) = next_token(data_tokenized, IDENT, "ident");
 
     return ident;
 }
 
-std::map<float, float> Parser::mM_series(std::vector<UL> &data_tokenized)
+std::tuple<float, float> Parser::mM_series(std::vector<UL> &data_tokenized)
 {
-    std::map<float, float> mM = {{0, 0}, {1, 0}};
-    std::map<float, float> unit = {{0, Unit::mM}, {1, Unit::mM}};
+    std::tuple<float, float> mM = {0, 0};
+    std::tuple<float, float> unit = {Unit::mM, Unit::mM};
 
-    mM[0] = next_token(data_tokenized, NUM, "mM number");
-    unit[0] = next_token(data_tokenized, UNIT, "mM unit");
+    std::get<0>(mM) = next_token(data_tokenized, NUM, "mM number");
+    std::get<0>(unit) = next_token(data_tokenized, UNIT, "mM unit");
 
-    if (unit[0] == Unit::uM)
-        mM[0] *= 1e-3;
+    if (std::get<0>(unit) == Unit::uM)
+        std::get<0>(mM) *= 1e-3;
 
     if (next_symbol(data_tokenized, COMMA))
     {
-        mM[1] = next_token(data_tokenized, NUM, "mM number");
-        unit[1] = next_token(data_tokenized, UNIT, "mM unit");
+        std::get<1>(mM) = next_token(data_tokenized, NUM, "mM number");
+        std::get<1>(unit) = next_token(data_tokenized, UNIT, "mM unit");
 
-        if (unit[1] == Unit::uM)
-            mM[1] *= 1e-3;
+        if (std::get<1>(unit) == Unit::uM)
+            std::get<1>(mM) *= 1e-3;
     }
 
     return mM;
@@ -284,9 +284,9 @@ void Parser::print_instr(std::vector<instr> instructions)
 void Parser::print_react(react r)
 {
     printf("Enzyma: %d\n", int(r.ident));
-    printf("Substrates: %d %d\n", int(r.substrates[0]), int(r.substrates[1]));
-    printf("Products: %d %d\n", int(r.products[0]), int(r.products[1]));
-    printf("mM: %f %f\n", r.mM[0], r.mM[1]);
+    printf("Substrates: %d %d\n", int(std::get<0>(r.substrates)), int(std::get<1>(r.substrates)));
+    printf("Products: %d %d\n", int(std::get<0>(r.products)), int(std::get<1>(r.products)));
+    printf("mM: %f %f\n", std::get<0>(r.mM), std::get<1>(r.mM));
     printf("kcat: %f\n\n", r.kcat);
 }
 
