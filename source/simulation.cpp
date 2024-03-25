@@ -40,6 +40,56 @@ std::map<int, std::tuple<int, int, int>> Simulation::__map_instructions()
     return map;
 }
 
+std::tuple<float, float, float> Simulation::__rand_positions(float x, float y, float z, float speed)
+{
+    // Generate a random angle in radians
+    float angle = (rand() % 360) * M_PI / 180;
+
+    float x_new = x + speed * cos(angle);
+    float y_new = y + speed * sin(angle);
+    float z_new = z + speed * (rand() % 2 == 0 ? 1 : -1);
+
+    return {x_new, y_new, z_new};
+}
+
+void Simulation::__is_hit(float x, float y, float z, float diameter, Molecule *molecule_hit)
+{
+    for (Molecule &m : m_molecules)
+    {
+        if (m.is_seen)
+            continue;
+
+        float distance = std::sqrt((m.x - x) * (m.x - x) + (m.y - y) * (m.y - y) + (m.z - z) * (m.z - z));
+        if (distance < (m.diameter + diameter) / 2)
+        {
+            molecule_hit = &m;
+            break;
+        }
+    }
+}
+
+bool Simulation::__is_reacting(Molecule &molecule, Molecule &molecule_hit, react *reaction)
+{
+    for (react r : m_reactions)
+    {
+        if (r.ident == molecule.ident)
+            if (std::get<0>(r.substrates) == molecule.ident || std::get<1>(r.substrates) == molecule.ident)
+            {
+                reaction = &r;
+                return true;
+            }
+
+        if (r.ident == molecule_hit.ident)
+            if (std::get<0>(r.substrates) == molecule_hit.ident || std::get<1>(r.substrates) == molecule_hit.ident)
+            {
+                reaction = &r;
+                return true;
+            }
+    }
+
+    return false;
+}
+
 // ========================
 // INITIALIZATION METHODS
 void Simulation::init(char *data_path)
@@ -126,6 +176,49 @@ void Simulation::init_molecules()
             idx++;
         }
     }
+}
+
+void Simulation::move_all_molecules()
+{
+    for (size_t i = 0; i < m_molecules.size(); i++)
+    {
+        size_t reverse_i = m_molecules.size() - i - 1;
+        Molecule &m = m_molecules[m_inverse_direction ? reverse_i : i];
+
+        // If the molecule has already been seen, skip it
+        if (m.is_seen)
+            continue;
+
+        // Mark the molecule as seen
+        m.is_seen = true;
+
+        // Generate a new position for the molecule
+        std::tuple<float, float, float> new_pos = __rand_positions(m.x, m.y, m.z, m.speed);
+
+        // Check if the new position is inside the vesicle
+        float distance_from_center = std::sqrt(std::get<0>(new_pos) * std::get<0>(new_pos) + std::get<1>(new_pos) * std::get<1>(new_pos) + std::get<2>(new_pos) * std::get<2>(new_pos));
+        if (distance_from_center > vesicle_diameter / 2 - m.diameter / 2)
+            continue;
+
+        // Check if the molecule has collided with another molecule
+        Molecule *molecule_hit = nullptr;
+        __is_hit(std::get<0>(new_pos), std::get<1>(new_pos), std::get<2>(new_pos), m.diameter, molecule_hit);
+
+        // If the molecule has not collided with another molecule, update its position
+        if (molecule_hit == nullptr)
+            std::tie(m.x, m.y, m.z) = new_pos;
+
+        // Else, check if a reaction can occur
+        else
+        {
+        }
+    }
+
+    // Reset the is_seen attribute of all molecules
+    for (Molecule &m : m_molecules)
+        m.is_seen = false;
+
+    m_inverse_direction = !m_inverse_direction;
 }
 
 // ========================

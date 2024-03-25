@@ -31,6 +31,9 @@ private:
      * @return std::vector<instr> The instructions
      */
     std::map<int, std::tuple<int, int, int>> __map_instructions();
+    std::tuple<float, float, float> __rand_positions(float x, float y, float z, float speed);
+    void __is_hit(float x, float y, float z, float diameter, Molecule *molecule_hit = nullptr);
+    bool __is_reacting(Molecule &molecule, Molecule &molecule_hit, react *reaction = nullptr);
 
 public:
     // PUBLIC ATTRIBUTES
@@ -41,6 +44,8 @@ public:
     float max_diameter = 0;
     float n_types_molecule = 0;
     float n_molecules = 0;
+
+    bool m_inverse_direction = false;
 
     // PUBLIC METHODS
     /**
@@ -65,6 +70,7 @@ public:
      * Initialize the molecules
      */
     void init_molecules();
+    void move_all_molecules();
 
     /**
      * @brief Read the file and parse it, to get the instructions and reactions of the simulation

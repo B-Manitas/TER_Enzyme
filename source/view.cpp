@@ -162,6 +162,10 @@ void View::on_key_pressed(int key, int x, int y)
         __m_camera_distance = std::min(100.0f, __m_camera_distance + 10);
         break;
 
+    case GLUT_KEY_RIGHT:
+        m_simulation.move_all_molecules();
+        break;
+
     default:
         break;
     }
