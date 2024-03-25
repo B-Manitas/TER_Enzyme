@@ -95,6 +95,10 @@ instr Parser::instruction(std::vector<UL> &data_tokenized)
     if (i.type == Keyword::DIAMETER)
         i.value *= 10;
 
+    // If the instruction is diameter, multiply the value by 5
+    if (i.type == Keyword::SPEED)
+        i.value *= 5;
+
     // Next symbol is semicolon
     next_symbol_except(data_tokenized, SEMICOLON, "syntax_error");
 
