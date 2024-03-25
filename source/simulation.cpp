@@ -41,14 +41,14 @@ std::map<int, std::tuple<int, int, int>> Simulation::__map_instructions()
     return map;
 }
 
-Coord Simulation::__rand_positions(float x, float y, float z, float speed)
+Coord Simulation::__rand_positions(const Coord &position, float speed)
 {
     // Generate a random angle in radians
     float angle = (rand() % 360) * M_PI / 180;
 
-    float x_new = x + speed * cos(angle);
-    float y_new = y + speed * sin(angle);
-    float z_new = z + speed * (rand() % 2 == 0 ? 1 : -1);
+    float x_new = position.x + speed * cos(angle);
+    float y_new = position.y + speed * sin(angle);
+    float z_new = position.z + speed * (rand() % 2 == 0 ? 1 : -1);
 
     return {x_new, y_new, z_new};
 }
@@ -205,8 +205,9 @@ void Simulation::move_all_molecules()
         m.is_seen = true;
 
         // Generate a new position for the molecule
-        Coord new_pos = __rand_positions(m.position.x, m.position.y, m.position.z, m.speed);
-        
+        Coord new_pos = __rand_positions(m.position, m.speed);
+
+        // If the molecule is outside the vesicle, skip it
         if (__distance(new_pos, Coord()) > vesicle_diameter / 2 - m.diameter / 2)
             continue;
 

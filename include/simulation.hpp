@@ -32,7 +32,7 @@ private:
      * @return std::vector<instr> The instructions
      */
     std::map<int, std::tuple<int, int, int>> __map_instructions();
-    Coord __rand_positions(float x, float y, float z, float speed);
+    Coord __rand_positions(const Coord &position, float speed);
     void __is_hit(const Molecule &molecule, Molecule &molecule_hit);
     bool __is_reacting(Molecule &molecule, Molecule &molecule_hit, react &reaction);
     float __distance(const Coord &a, const Coord &b);
