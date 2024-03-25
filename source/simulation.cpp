@@ -71,21 +71,19 @@ int Simulation::__is_hit(const Molecule &m)
 
 bool Simulation::__is_reacting(Molecule &molecule, Molecule &molecule_hit, react &reaction)
 {
-    for (react r : m_reactions)
+    for (const react &r : m_reactions)
     {
-        if (r.ident == molecule.ident)
-            if (std::get<0>(r.substrates) == molecule_hit.ident || std::get<1>(r.substrates) == molecule_hit.ident)
-            {
-                reaction = r;
-                return true;
-            }
+        // Check if molecule is an enzyme and the hit is a substrate
+        const bool molecule_is_reacting = r.ident == molecule.ident && r.substrate == molecule_hit.ident;
+        
+        // Check if hit is an enzyme and the molecule is a substrate
+        const bool hit_is_reacting = r.ident == molecule_hit.ident && r.substrate == molecule.ident;
 
-        if (r.ident == molecule_hit.ident)
-            if (std::get<0>(r.substrates) == molecule.ident || std::get<1>(r.substrates) == molecule.ident)
-            {
-                reaction = r;
-                return true;
-            }
+        if (molecule_is_reacting || hit_is_reacting)
+        {
+            reaction = r;
+            return true;
+        }
     }
 
     return false;
@@ -120,14 +118,9 @@ void Simulation::init_max_diameter()
 void Simulation::init_count_molecules()
 {
     std::set<float> set_ident;
-    for (auto &&r : m_reactions)
-    {
-        float s1, s2, p1, p2;
-        std::tie(s1, s2) = r.substrates;
-        std::tie(p1, p2) = r.products;
 
-        set_ident.insert({r.ident, s1, s2, p1, p2});
-    }
+    for (auto &&r : m_reactions)
+        set_ident.insert({r.ident, r.substrate, r.product});
 
     m_ident_molecules = std::vector<int>(set_ident.begin(), set_ident.end());
 }
@@ -233,20 +226,20 @@ void Simulation::move_all_molecules()
                 // Update the type of the molecule
                 if (reaction.ident == m.ident)
                 {
-                    if (std::get<0>(reaction.products) == molecule_hit.ident)
-                        m.ident = std::get<1>(reaction.products);
+                    if (reaction.substrate == molecule_hit.ident)
+                        m.ident = reaction.product;
 
                     else
-                        m.ident = std::get<0>(reaction.products);
+                        m.ident = reaction.product;
                 }
 
                 else
                 {
-                    if (std::get<0>(reaction.products) == m.ident)
-                        molecule_hit.ident = std::get<1>(reaction.products);
+                    if (reaction.substrate == m.ident)
+                        molecule_hit.ident = reaction.product;
 
                     else
-                        molecule_hit.ident = std::get<0>(reaction.products);
+                        molecule_hit.ident = reaction.product;
                 }
 
                 molecule_hit.is_seen = true;

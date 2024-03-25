@@ -51,16 +51,16 @@ struct UL
 struct react
 {
     // The id of the enzyme
-    float ident = 0;
+    float ident = -1;
 
-    // The substrates represented by their id. (0 if not present)
-    std::tuple<float, float> substrates = {0, 0};
+    // The substrate represented by their id. (-1 if not present)
+    float substrate = -1;
 
-    // The products represented by their id. (0 if not present)
-    std::tuple<float, float> products = {0, 0};
+    // The product represented by their id. (-1 if not present)
+    float product = -1;
 
-    // The quantity in mM of sub_1 and sub_2.
-    std::tuple<float, float> mM = {0, 0};
+    // The quantity in mM of sub.
+    float mM = 0;
 
     float kcat = 0;
 };
@@ -93,7 +93,7 @@ struct Coord
      * @param y The y position of the molecule
      * @param z The z position of the molecule
      */
-     Coord(float x, float y, float z) : x(x), y(y), z(z) {}
+    Coord(float x, float y, float z) : x(x), y(y), z(z) {}
 
     // Operators ==
     bool operator==(const Coord &c) const

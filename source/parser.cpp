@@ -40,20 +40,20 @@ react Parser::reaction(std::vector<UL> &data_tokenized)
     // Next symbol is colon
     next_symbol_except(data_tokenized, COLON, "syntax_error 0");
 
-    // Get substrates
-    r.substrates = idents_series(data_tokenized);
+    // Get substrate
+    r.substrate = next_token(data_tokenized, IDENT, "substrate error");
 
     // Next symbol is arrow
     next_symbol_except(data_tokenized, ARROW, "syntax_error 1");
 
-    // Get products
-    r.products = idents_series(data_tokenized);
+    // Get product
+    r.product = next_token(data_tokenized, IDENT, "product error");
 
     // Next symbol is arrow
     next_symbol_except(data_tokenized, VBAR, "syntax_error 2");
 
     // Get mM
-    r.mM = mM_series(data_tokenized);
+    r.mM = std::get<0>(mM_series(data_tokenized));
 
     // Next symbol is minus
     next_symbol_except(data_tokenized, MINUS, "syntax_error 3");
@@ -284,9 +284,9 @@ void Parser::print_instr(std::vector<instr> instructions)
 void Parser::print_react(react r)
 {
     printf("Enzyma: %d\n", int(r.ident));
-    printf("Substrates: %d %d\n", int(std::get<0>(r.substrates)), int(std::get<1>(r.substrates)));
-    printf("Products: %d %d\n", int(std::get<0>(r.products)), int(std::get<1>(r.products)));
-    printf("mM: %f %f\n", std::get<0>(r.mM), std::get<1>(r.mM));
+    printf("Substrates: %d\n", int(r.substrate));
+    printf("Products: %d\n", int(r.product));
+    printf("mM: %f\n", r.mM);
     printf("kcat: %f\n\n", r.kcat);
 }
 
