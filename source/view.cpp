@@ -100,24 +100,26 @@ void View::draw_scene()
     glutSwapBuffers();
 }
 
-std::tuple<float, float, float> View::__generate_color(int ident)
-{
-    // Convert the identifier to an intensity value
-    int intensity = static_cast<int>(fmod(ident * 255.0, 256.0));
-
-    // Use the intensity to generate a color
-    std::tuple<float, float, float> color;
-    std::get<0>(color) = ((intensity * 3 + rand() % 50) % 256) / 255.0;
-    std::get<1>(color) = ((intensity * 5 + rand() % 100) % 256) / 255.0;
-    std::get<2>(color) = ((intensity * 7 + rand() % 150) % 256) / 255.0;
-
-    return color;
-}
-
 void View::__map_colors()
 {
-    for (auto &&ident : m_simulation.m_ident_molecules)
-        m_colors[ident] = __generate_color(ident);
+    const int &n_colors = m_simulation.m_ident_molecules.size();
+
+    // Compute the number of colors per direction in the RGB space
+    const int &num_per_direction = ceil(pow(n_colors, 1.0 / 3.0));
+
+    // Compute the spacing between each color
+    const int &spacing = ceil(255.0 / (num_per_direction - 1));
+
+    // Generate the colors for each molecule type
+    for (int r = 0; r < num_per_direction; ++r)
+        for (int g = 0; g < num_per_direction; ++g)
+            for (int b = 0; b < num_per_direction; ++b)
+            {
+                const int &id_color = r * num_per_direction * num_per_direction + g * num_per_direction + b;
+                const int &ident = m_simulation.m_ident_molecules[id_color];
+
+                m_colors[ident] = {r * spacing, g * spacing, b * spacing};
+            }
 }
 
 // ============================

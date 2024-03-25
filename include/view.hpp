@@ -33,13 +33,6 @@ private:
     void __set_simulation(const Simulation &simulation);
 
     /**
-     * @brief Generate a color for a molecule
-     *
-     * @param ident
-     * @return std::tuple<float, float, float>
-     */
-    std::tuple<float, float, float> __generate_color(int ident);
-    /**
      * @brief Map the colors of the molecules
      *
      */
