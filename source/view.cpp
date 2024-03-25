@@ -63,7 +63,7 @@ void View::draw_vesicle()
     // Enable blending for transparency
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor3f(1.0, 1.0, 1.0);
+    glColor4f(1.0, 1.0, 1.0, 0.5);
 
     // Draw the vesicle sphere
     glutWireSphere(m_vesicle_radius, m_detail_x, m_detail_y);
@@ -88,7 +88,7 @@ void View::draw_scene()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glLoadIdentity();
-    gluLookAt(0.0, 0.0, 900.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
+    gluLookAt(0.0, 0.0, 900.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
     glTranslatef(0.0, 0.0, -__m_camera_distance);
     glRotatef(__m_rotate_y, 0.0, 1.0, 0.0);
@@ -124,11 +124,8 @@ void View::__map_colors()
 // MOUSE EVENT HANDLERS
 void View::on_mouse_move(int x, int y)
 {
-    int deltaX = x - __m_last_mouse_x;
-    int deltaY = y - __m_last_mouse_y;
-
-    __m_rotate_x += deltaY * 0.1;
-    __m_rotate_y += deltaX * 0.1;
+    __m_rotate_x += (y - __m_last_mouse_y) * 0.5;
+    __m_rotate_y += (x - __m_last_mouse_x) * 0.5;
 
     __m_last_mouse_x = x;
     __m_last_mouse_y = y;
