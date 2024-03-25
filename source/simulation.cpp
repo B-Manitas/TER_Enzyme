@@ -53,19 +53,20 @@ Coord Simulation::__rand_positions(const Coord &position, float speed)
     return {x_new, y_new, z_new};
 }
 
-void Simulation::__is_hit(const Molecule &m, Molecule &molecule_hit)
+int Simulation::__is_hit(const Molecule &m)
 {
-    for (Molecule &o : m_molecules)
+    for (size_t i = 0; i < m_molecules.size(); i++)
     {
-        if (o.is_seen)
+        // If the molecule has already been seen, skip it
+        // If the molecule is the same as the current molecule, skip it
+        if (m_molecules[i].is_seen)
             continue;
 
-        if (__distance(o.position, m.position) < (o.diameter + m.diameter) / 2)
-        {
-            molecule_hit = o;
-            break;
-        }
+        if (__distance(m.position, m_molecules[i].position) < (m.diameter + m_molecules[i].diameter) / 2)
+            return i;
     }
+
+    return -1;
 }
 
 bool Simulation::__is_reacting(Molecule &molecule, Molecule &molecule_hit, react &reaction)
@@ -212,17 +213,18 @@ void Simulation::move_all_molecules()
             continue;
 
         // Check if the molecule has collided with another molecule
-        Molecule molecule_hit;
-        __is_hit(m, molecule_hit);
+        int id_hit = __is_hit(m);
 
         // If the molecule has not collided with another molecule, update its position
-        if (molecule_hit.ident == 0)
+        if (id_hit == -1)
             m.position = new_pos;
 
         // Else, check if a reaction can occur
         else
         {
             react reaction;
+            Molecule &molecule_hit = m_molecules[id_hit];
+
             if (__is_reacting(m, molecule_hit, reaction))
             {
                 // Update the position of the molecule
@@ -248,6 +250,7 @@ void Simulation::move_all_molecules()
                 }
 
                 molecule_hit.is_seen = true;
+                m_molecules[id_hit] = molecule_hit;
             }
         }
     }
