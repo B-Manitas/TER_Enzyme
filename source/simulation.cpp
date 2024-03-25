@@ -53,17 +53,16 @@ Coord Simulation::__rand_positions(float x, float y, float z, float speed)
     return {x_new, y_new, z_new};
 }
 
-void Simulation::__is_hit(float x, float y, float z, float diameter, Molecule &molecule_hit)
+void Simulation::__is_hit(const Molecule &m, Molecule &molecule_hit)
 {
-    for (Molecule &m : m_molecules)
+    for (Molecule &o : m_molecules)
     {
-        if (m.is_seen)
+        if (o.is_seen)
             continue;
 
-        float distance = std::sqrt((m.position.x - x) * (m.position.x - x) + (m.position.y - y) * (m.position.y - y) + (m.position.z - z) * (m.position.z - z));
-        if (distance < (m.diameter + diameter) / 2)
+        if (__distance(o.position, m.position) < (o.diameter + m.diameter) / 2)
         {
-            molecule_hit = m;
+            molecule_hit = o;
             break;
         }
     }
@@ -89,6 +88,11 @@ bool Simulation::__is_reacting(Molecule &molecule, Molecule &molecule_hit, react
     }
 
     return false;
+}
+
+float Simulation::__distance(const Coord &a, const Coord &b)
+{
+    return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) + (a.z - b.z) * (a.z - b.z));
 }
 
 // ========================
@@ -133,12 +137,13 @@ void Simulation::init_equidistant_positions()
     float vesicle_radius = vesicle_diameter / 2 - max_diameter / 2 - offset;
     float bounding_volume = (4.0 / 3.0) * M_PI * vesicle_radius * vesicle_radius * vesicle_radius;
 
-    // Calculer le volume total occupé par toutes les sphères intérieures
+    // Compute the volume of a molecule (sphere)
     float molecule_volume = (4.0 / 3.0) * M_PI * max_diameter * max_diameter * max_diameter / 8;
     int n_spheres = static_cast<int>(bounding_volume / molecule_volume);
 
-    // Utiliser une distribution cubique régulière à l'intérieur de la sphère englobante
-    float sphere_distance = max_diameter; // Distance entre les centres de deux sphères adjacentes
+    // Use a cubic grid to place the spheres
+    // The distance between the centers of two adjacent spheres is equal to the diameter of the sphere
+    float sphere_distance = max_diameter;
     float cube_root_n = std::cbrt(n_spheres);
     for (int x = 0; x < cube_root_n; ++x)
     {
@@ -146,14 +151,15 @@ void Simulation::init_equidistant_positions()
         {
             for (int z = 0; z < cube_root_n; ++z)
             {
-                float sphere_x = (2 * x + 1 - cube_root_n) * sphere_distance / 2;
-                float sphere_y = (2 * y + 1 - cube_root_n) * sphere_distance / 2;
-                float sphere_z = (2 * z + 1 - cube_root_n) * sphere_distance / 2;
+                // Compute the position of the sphere
+                const Coord &sphere = {
+                    (2 * x + 1 - cube_root_n) * sphere_distance / 2,
+                    (2 * y + 1 - cube_root_n) * sphere_distance / 2,
+                    (2 * z + 1 - cube_root_n) * sphere_distance / 2};
 
-                // Vérifier que chaque sphère reste à l'intérieur de la sphère englobante
-                float distance_from_center = std::sqrt(sphere_x * sphere_x + sphere_y * sphere_y + sphere_z * sphere_z);
-                if (distance_from_center <= vesicle_radius)
-                    m_start_positions.push_back({sphere_x, sphere_y, sphere_z});
+                // Check if the sphere is inside the vesicle
+                if (__distance(sphere, Coord()) <= vesicle_radius)
+                    m_start_positions.push_back(sphere);
             }
         }
     }
@@ -200,14 +206,13 @@ void Simulation::move_all_molecules()
 
         // Generate a new position for the molecule
         Coord new_pos = __rand_positions(m.position.x, m.position.y, m.position.z, m.speed);
-
-        float distance_from_center = std::sqrt(new_pos.x * new_pos.x + new_pos.y * new_pos.y + new_pos.z * new_pos.z);
-        if (distance_from_center > vesicle_diameter / 2 - m.diameter / 2)
+        
+        if (__distance(new_pos, Coord()) > vesicle_diameter / 2 - m.diameter / 2)
             continue;
 
         // Check if the molecule has collided with another molecule
         Molecule molecule_hit;
-        __is_hit(new_pos.x, new_pos.y, new_pos.z, m.diameter, molecule_hit);
+        __is_hit(m, molecule_hit);
 
         // If the molecule has not collided with another molecule, update its position
         if (molecule_hit.ident == 0)
