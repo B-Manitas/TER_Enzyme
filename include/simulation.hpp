@@ -32,8 +32,8 @@ private:
      */
     std::map<int, std::tuple<int, int, int>> __map_instructions();
     Coord __rand_positions(float x, float y, float z, float speed);
-    void __is_hit(float x, float y, float z, float diameter, Molecule *molecule_hit = nullptr);
-    bool __is_reacting(Molecule &molecule, Molecule &molecule_hit, react *reaction = nullptr);
+    void __is_hit(float x, float y, float z, float diameter, Molecule &molecule_hit);
+    bool __is_reacting(Molecule &molecule, Molecule &molecule_hit, react &reaction);
 
 public:
     // PUBLIC ATTRIBUTES

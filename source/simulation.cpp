@@ -53,7 +53,7 @@ Coord Simulation::__rand_positions(float x, float y, float z, float speed)
     return {x_new, y_new, z_new};
 }
 
-void Simulation::__is_hit(float x, float y, float z, float diameter, Molecule *molecule_hit)
+void Simulation::__is_hit(float x, float y, float z, float diameter, Molecule &molecule_hit)
 {
     for (Molecule &m : m_molecules)
     {
@@ -63,27 +63,27 @@ void Simulation::__is_hit(float x, float y, float z, float diameter, Molecule *m
         float distance = std::sqrt((m.position.x - x) * (m.position.x - x) + (m.position.y - y) * (m.position.y - y) + (m.position.z - z) * (m.position.z - z));
         if (distance < (m.diameter + diameter) / 2)
         {
-            molecule_hit = &m;
+            molecule_hit = m;
             break;
         }
     }
 }
 
-bool Simulation::__is_reacting(Molecule &molecule, Molecule &molecule_hit, react *reaction)
+bool Simulation::__is_reacting(Molecule &molecule, Molecule &molecule_hit, react &reaction)
 {
     for (react r : m_reactions)
     {
         if (r.ident == molecule.ident)
-            if (std::get<0>(r.substrates) == molecule.ident || std::get<1>(r.substrates) == molecule.ident)
+            if (std::get<0>(r.substrates) == molecule_hit.ident || std::get<1>(r.substrates) == molecule_hit.ident)
             {
-                reaction = &r;
+                reaction = r;
                 return true;
             }
 
         if (r.ident == molecule_hit.ident)
-            if (std::get<0>(r.substrates) == molecule_hit.ident || std::get<1>(r.substrates) == molecule_hit.ident)
+            if (std::get<0>(r.substrates) == molecule.ident || std::get<1>(r.substrates) == molecule.ident)
             {
-                reaction = &r;
+                reaction = r;
                 return true;
             }
     }
@@ -202,16 +202,12 @@ void Simulation::move_all_molecules()
             continue;
 
         // Check if the molecule has collided with another molecule
-        Molecule *molecule_hit = nullptr;
+        Molecule molecule_hit;
         __is_hit(new_pos.x, new_pos.y, new_pos.z, m.diameter, molecule_hit);
 
         // If the molecule has not collided with another molecule, update its position
-        if (molecule_hit == nullptr)
-        {
-            m.position.x = new_pos.x;
-            m.position.y = new_pos.y;
-            m.position.z = new_pos.z;
-        }
+        if (molecule_hit.ident == 0)
+            m.position = new_pos;
 
         // Else, check if a reaction can occur
         else
