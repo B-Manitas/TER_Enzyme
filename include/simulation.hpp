@@ -8,6 +8,7 @@
 #include <map>
 #include <algorithm>
 #include <random>
+#include <set>
 
 #include "lexer.hpp"
 #include "parser.hpp"
@@ -42,8 +43,6 @@ public:
 
     const float vesicle_diameter = 620;
     float max_diameter = 0;
-    float n_types_molecule = 0;
-    float n_molecules = 0;
 
     bool m_inverse_direction = false;
 

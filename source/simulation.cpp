@@ -114,13 +114,17 @@ void Simulation::init_max_diameter()
 
 void Simulation::init_count_molecules()
 {
-    for (auto &&i : m_instructions)
-        if (i.type == Keyword::INIT)
-        {
-            n_types_molecule++;
-            n_molecules += i.value;
-            m_ident_molecules.push_back(i.ident);
-        }
+    std::set<float> set_ident;
+    for (auto &&r : m_reactions)
+    {
+        float s1, s2, p1, p2;
+        std::tie(s1, s2) = r.substrates;
+        std::tie(p1, p2) = r.products;
+
+        set_ident.insert({r.ident, s1, s2, p1, p2});
+    }
+
+    m_ident_molecules = std::vector<int>(set_ident.begin(), set_ident.end());
 }
 
 void Simulation::init_equidistant_positions()
@@ -251,8 +255,6 @@ Simulation &Simulation::operator=(const Simulation &other)
         m_molecules = other.m_molecules;
         m_ident_molecules = other.m_ident_molecules;
         max_diameter = other.max_diameter;
-        n_types_molecule = other.n_types_molecule;
-        n_molecules = other.n_molecules;
     }
     return *this;
 }
