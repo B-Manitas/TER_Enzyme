@@ -32,9 +32,38 @@ private:
      * @return std::vector<instr> The instructions
      */
     std::map<int, std::tuple<int, int, int>> __map_instructions();
-    Coord __rand_positions(const Coord &position, float speed);
+    /**
+     * @brief Generate a random movement for a molecule
+     * 
+     * @param position The current position of the molecule
+     * @param speed The speed of the molecule
+     * @return Coord The new position of the molecule
+     */
+    Coord __rand_movement(const Coord &position, float speed);
+    /**
+     * @brief Check if a molecule is hit by another molecule
+     *
+     * @param m The molecule to check
+     * @return int The index of the molecule that hit the molecule. -1 if no molecule hit the molecule
+     */
     int __is_hit(const Molecule &m);
+    /**
+     * @brief Check if two molecules are reacting
+     *
+     * @param molecule The first molecule
+     * @param molecule_hit The second molecule
+     * @param reaction The reaction that will be performed
+     * @return true If the two molecules are reacting
+     * @return false If the two molecules are not reacting
+     */
     bool __is_reacting(Molecule &molecule, Molecule &molecule_hit, react &reaction);
+    /**
+     * @brief Compute the distance between two coordinates
+     * 
+     * @param a The first coordinate
+     * @param b The second coordinate
+     * @return float The distance between the two coordinates
+     */
     float __distance(const Coord &a, const Coord &b);
 
 public:
@@ -71,6 +100,9 @@ public:
      * Initialize the molecules
      */
     void init_molecules();
+    /**
+     * @brief Move all the molecules in the simulation
+     */
     void move_all_molecules();
 
     /**
