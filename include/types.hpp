@@ -64,6 +64,9 @@ struct react
     float mM = 0;
 
     float kcat = 0;
+
+    // The probability of the reaction
+    float p1 = 0, p2 = 0, p3 = 0;
 };
 
 /**
@@ -107,6 +110,15 @@ struct Coord
     {
         return x != c.x || y != c.y || z != c.z;
     }
+
+    // Operators +=
+    Coord &operator+(int i)
+    {
+        x += i;
+        y += i;
+        z += i;
+        return *this;
+    }
 };
 
 /**
@@ -130,6 +142,9 @@ struct Molecule
     // The name of the molecule
     std::string name = "";
 
+    // The ident of the molecule that the molecule will fuse with
+    react reaction = {};
+
     // The diameter and speed of the molecule
     float diameter = 1, speed = 1;
 
@@ -138,6 +153,9 @@ struct Molecule
 
     // Boolean to check if the molecule has been seen
     bool is_seen = false;
+
+    // Boolean to delete the molecule
+    bool to_delete = false;
 
     // Pointer to the next and prev molecule in the same zone
     Molecule *next = 0, *prev = 0;

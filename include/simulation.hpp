@@ -20,6 +20,7 @@ private:
     // PRIVATE ATTRIBUTES
     std::vector<instr> m_instructions = std::vector<instr>{};
     std::vector<react> m_reactions = std::vector<react>{};
+    std::map<int, std::tuple<int, int, int>> m_map_instructions = std::map<int, std::tuple<int, int, int>>{};
 
     std::vector<Coord> m_start_positions = std::vector<Coord>{};
 
@@ -34,7 +35,7 @@ private:
     std::map<int, std::tuple<int, int, int>> __map_instructions();
     /**
      * @brief Generate a random movement for a molecule
-     * 
+     *
      * @param position The current position of the molecule
      * @param speed The speed of the molecule
      * @return Coord The new position of the molecule
@@ -58,13 +59,54 @@ private:
      */
     bool __is_reacting(Molecule &molecule, Molecule &molecule_hit, react &reaction);
     /**
+     * @brief Perform a reaction of fusion between two molecules
+     *
+     * @param enzyme The enzyme molecule
+     * @param substrate The substrate molecule
+     * @param reaction The reaction to perform
+     */
+    void __reacting_fusion(Molecule &enzyme, Molecule &substrate, const react &reaction);
+    /**
+     * @brief Perform a reaction of unfusion, where the enzyme molecule is separated from the substrate molecule
+     * type: Es -> e + s
+     *
+     * @param enzyme The enzyme molecule
+     * @param ident_product The identifier of the product molecule
+     */
+    void __reacting_unfusion(Molecule &enzyme, const int &ident_product);
+
+    /**
      * @brief Compute the distance between two coordinates
-     * 
+     *
      * @param a The first coordinate
      * @param b The second coordinate
      * @return float The distance between the two coordinates
      */
     float __distance(const Coord &a, const Coord &b);
+    /**
+     * @brief Compute the probability of a reaction 'e: s -> p'
+     * [p1]: E + s -> Es
+     *
+     * @param reaction The reaction to compute the probability
+     * @return float The probability of the reaction
+     */
+    float __compute_probability_1(const react &reaction, const float &probability_2, const float &probability_3);
+    /**
+     * @brief Compute the probability of a reaction 'e: s -> p'
+     * [p2]: Es -> E + s
+     *
+     * @param reaction The reaction to compute the probability
+     * @return float The probability of the reaction
+     */
+    float __compute_probability_2(const react &reaction, const float &probability_3);
+    /**
+     * @brief Compute the probability of a reaction 'e: s -> p'
+     * [p3]: Es -> E + p
+     *
+     * @param reaction The reaction to compute the probability
+     * @return float The probability of the reaction
+     */
+    float __compute_probability_3(const react &reaction);
 
 public:
     // PUBLIC ATTRIBUTES
@@ -74,6 +116,7 @@ public:
 
     const float vesicle_diameter = 620;
     float max_diameter = 0;
+    unsigned int m_time = 0;
 
     bool m_inverse_direction = false;
 
@@ -100,6 +143,10 @@ public:
      * Initialize the molecules
      */
     void init_molecules();
+    /**
+     * Initialize the reactions
+     */
+    void init_reactions();
     /**
      * @brief Move all the molecules in the simulation
      */

@@ -75,7 +75,7 @@ bool Simulation::__is_reacting(Molecule &molecule, Molecule &molecule_hit, react
     {
         // Check if molecule is an enzyme and the hit is a substrate
         const bool molecule_is_reacting = r.ident == molecule.ident && r.substrate == molecule_hit.ident;
-        
+
         // Check if hit is an enzyme and the molecule is a substrate
         const bool hit_is_reacting = r.ident == molecule_hit.ident && r.substrate == molecule.ident;
 
@@ -89,9 +89,48 @@ bool Simulation::__is_reacting(Molecule &molecule, Molecule &molecule_hit, react
     return false;
 }
 
+void Simulation::__reacting_fusion(Molecule &enzyme, Molecule &substrate, const react &reaction)
+{
+    enzyme.reaction = reaction;
+    substrate.to_delete = true;
+    substrate.is_seen = true;
+}
+
+void Simulation::__reacting_unfusion(Molecule &enzyme, const int &ident_product)
+{
+    std::tuple<int, int, int> product_data = m_map_instructions[ident_product];
+
+    // Create the product molecule
+    Molecule product = Molecule(ident_product);
+    product.diameter = std::get<1>(product_data) ? std::get<1>(product_data) : product.diameter;
+    product.speed = std::get<2>(product_data) ? std::get<2>(product_data) : product.speed;
+    product.is_seen = true;
+    product.position = enzyme.position + enzyme.diameter / 2 + product.diameter / 2;
+    m_molecules.push_back(product);
+
+    // Reset the enzyme
+    enzyme.reaction = {};
+    enzyme.is_seen = true;
+}
+
 float Simulation::__distance(const Coord &a, const Coord &b)
 {
     return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) + (a.z - b.z) * (a.z - b.z));
+}
+
+float Simulation::__compute_probability_1(const react &reaction, const float &p2, const float &p3)
+{
+    return (p2 + p3) / (.448 * (1 + (p2 + p3) * (p2 + p3)) * reaction.mM);
+}
+
+float Simulation::__compute_probability_2(const react &reaction, const float &p3)
+{
+    return p3 / 10;
+}
+
+float Simulation::__compute_probability_3(const react &reaction)
+{
+    return reaction.kcat / 10000;
 }
 
 // ========================
@@ -106,6 +145,7 @@ void Simulation::init(char *data_path)
     init_count_molecules();
     init_equidistant_positions();
     init_molecules();
+    init_reactions();
 }
 
 void Simulation::init_max_diameter()
@@ -163,25 +203,32 @@ void Simulation::init_equidistant_positions()
 
 void Simulation::init_molecules()
 {
-    std::map<int, std::tuple<int, int, int>> map = __map_instructions();
+    m_map_instructions = __map_instructions();
     int idx = 0;
 
-    for (auto &&i : map)
+    for (auto &&i : m_map_instructions)
     {
         for (int j = 0; j < std::get<0>(i.second); j++)
         {
             Molecule molecule = Molecule(i.first);
             molecule.name = m_ident_molecules[i.first];
-            molecule.diameter = std::get<1>(i.second);
-            molecule.speed = std::get<2>(i.second);
-
-            molecule.position.x = m_start_positions[idx].x;
-            molecule.position.y = m_start_positions[idx].y;
-            molecule.position.z = m_start_positions[idx].z;
+            molecule.diameter = std::get<1>(i.second) ? std::get<1>(i.second) : molecule.diameter;
+            molecule.speed = std::get<2>(i.second) ? std::get<2>(i.second) : molecule.speed;
+            molecule.position = m_start_positions[idx];
 
             m_molecules.push_back(molecule);
             idx++;
         }
+    }
+}
+
+void Simulation::init_reactions()
+{
+    for (auto &&r : m_reactions)
+    {
+        r.p3 = __compute_probability_3(r);
+        r.p2 = __compute_probability_2(r, r.p3);
+        r.p1 = __compute_probability_1(r, r.p2, r.p3);
     }
 }
 
@@ -209,6 +256,26 @@ void Simulation::move_all_molecules()
         // Check if the molecule has collided with another molecule
         int id_hit = __is_hit(m);
 
+        // Pull a random number to check if a reaction can occur
+        float proba_react = static_cast<float>(rand()) / RAND_MAX;
+
+        if (m.reaction.ident != -1)
+        {
+            // Reaction: ES -> E + P
+            if (proba_react <= m.reaction.p2)
+            {
+                __reacting_unfusion(m, m.reaction.product);
+                continue;
+            }
+
+            // Reaction: ES -> E + S
+            if (m.reaction.p2 < proba_react <= m.reaction.p3)
+            {
+                __reacting_unfusion(m, m.reaction.substrate);
+                continue;
+            }
+        }
+
         // If the molecule has not collided with another molecule, update its position
         if (id_hit == -1)
             m.position = new_pos;
@@ -221,37 +288,39 @@ void Simulation::move_all_molecules()
 
             if (__is_reacting(m, molecule_hit, reaction))
             {
-                // Update the position of the molecule
-                m.position = new_pos;
-
-                // Update the type of the molecule
-                if (reaction.ident == m.ident)
+                // Reaction: E + S -> ES
+                if (m.reaction.ident == -1 && proba_react < reaction.p1)
                 {
-                    if (reaction.substrate == molecule_hit.ident)
-                        m.ident = reaction.product;
+                    // m is the enzyme
+                    if (m.ident == reaction.ident)
+                        __reacting_fusion(m, molecule_hit, reaction);
 
+                    // molecule_hit is the enzyme
                     else
-                        m.ident = reaction.product;
+                        __reacting_fusion(molecule_hit, m, reaction);
                 }
-
-                else
-                {
-                    if (reaction.substrate == m.ident)
-                        molecule_hit.ident = reaction.product;
-
-                    else
-                        molecule_hit.ident = reaction.product;
-                }
-
-                molecule_hit.is_seen = true;
-                m_molecules[id_hit] = molecule_hit;
             }
+
+            // If no reaction can occur, update the position of the molecule
+            else
+                m.position = new_pos;
         }
+
+        m_time += 1;
     }
 
     // Reset the is_seen attribute of all molecules
-    for (Molecule &m : m_molecules)
-        m.is_seen = false;
+    for (size_t i = 0; i < m_molecules.size(); i++)
+    {
+        if (m_molecules[i].to_delete)
+        {
+            m_molecules.erase(m_molecules.begin() + i);
+            i--;
+        }
+
+        else
+            m_molecules[i].is_seen = false;
+    }
 
     m_inverse_direction = !m_inverse_direction;
 }
@@ -272,7 +341,7 @@ void Simulation::read_file(char *data_path)
     parser.parse(lexer.lex_all(fp), m_reactions, m_instructions);
 
     // Store the names of the molecules
-    for (int i=0; i < lexer.m_HASH_SIZE; i++)
+    for (int i = 0; i < lexer.m_HASH_SIZE; i++)
         if (lexer.m_table[i] != NULL)
             m_names[i] = std::string(lexer.m_table[i]);
 
@@ -293,6 +362,7 @@ Simulation &Simulation::operator=(const Simulation &other)
         max_diameter = other.max_diameter;
         m_inverse_direction = other.m_inverse_direction;
         m_names = other.m_names;
+        m_map_instructions = other.m_map_instructions;
     }
     return *this;
 }
