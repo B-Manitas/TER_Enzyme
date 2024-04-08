@@ -271,14 +271,10 @@ void Simulation::read_file(char *data_path)
 
     parser.parse(lexer.lex_all(fp), m_reactions, m_instructions);
 
+    // Store the names of the molecules
     for (int i=0; i < lexer.m_HASH_SIZE; i++)
-    {
         if (lexer.m_table[i] != NULL)
-        {
-            // std::string molecule_name = ;
             m_names[i] = std::string(lexer.m_table[i]);
-        }
-    }
 
     fclose(fp);
 }

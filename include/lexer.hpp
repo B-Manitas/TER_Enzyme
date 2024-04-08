@@ -24,7 +24,7 @@ public:
     static const int m_HASH_SIZE = 200000;
 
     /* The hash table */
-    char *m_table[m_HASH_SIZE];
+    char *m_table[m_HASH_SIZE] = {0};
 
     // Constructor and destructor
     Lexer();
