@@ -82,13 +82,23 @@ void View::draw_legend()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    // Draw the text for each molecule type
     int y = m_height - 30; // Start 30 pixels from the top
+
+    // Display the time
+    glColor3f(1.0, 1.0, 1.0);
+    glRasterPos2f(20, y);
+    std::string text = "Time: " + std::to_string(m_simulation.m_time);
+    glutBitmapString(GLUT_BITMAP_HELVETICA_18, reinterpret_cast<const unsigned char *>(text.c_str()));
+
+    y -= 30; // Move down 20 pixels for the next line
+
+    // Draw the text for each molecule type
     for (auto &&ident : m_simulation.m_ident_molecules)
     {
         // Calculate the number of molecules of this type
         int count = std::count_if(m_simulation.m_molecules.begin(), m_simulation.m_molecules.end(),
-                                  [&ident](const Molecule &m) { return m.ident == ident; });
+                                  [&ident](const Molecule &m)
+                                  { return m.ident == ident; });
 
         // Draw the text
         glColor3f(1.0, 1.0, 1.0);

@@ -86,7 +86,10 @@ public:
      *
      */
     void draw_vesicle();
-    
+    /**
+     * @brief Draw the legend
+     *
+     */
     void draw_legend();
     /**
      * @brief Draw the molecules
