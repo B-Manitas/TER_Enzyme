@@ -25,7 +25,8 @@ void Parser::parse(std::vector<UL> data_tokenized, std::vector<react> &reactions
             return;
 
         default:
-            throw std::runtime_error("syntax_error");
+            data_tokenized.erase(data_tokenized.begin());
+            continue;
         }
     }
 }
@@ -95,7 +96,7 @@ instr Parser::instruction(std::vector<UL> &data_tokenized)
     if (i.type == Keyword::DIAMETER)
         i.value *= 10;
 
-    // If the instruction is diameter, multiply the value by 5
+    // If the instruction is speed, multiply the value by 5
     if (i.type == Keyword::SPEED)
         i.value *= 5;
 
