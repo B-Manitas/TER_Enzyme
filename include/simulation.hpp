@@ -40,6 +40,7 @@ private:
 public:
     // PUBLIC ATTRIBUTES
     std::vector<Molecule> m_molecules = std::vector<Molecule>{};
+    std::map<int, std::string> m_names = std::map<int, std::string>{};
     std::vector<int> m_ident_molecules = std::vector<int>{};
 
     const float vesicle_diameter = 620;

@@ -19,11 +19,10 @@
  */
 class Lexer
 {
-private:
+public:
     /* The size of the hash table */
     static const int m_HASH_SIZE = 200000;
 
-public:
     /* The hash table */
     char *m_table[m_HASH_SIZE];
 

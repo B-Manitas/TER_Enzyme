@@ -1,4 +1,5 @@
 #include "../include/view.hpp"
+#include <GL/freeglut.h> // Include the necessary header file
 
 // ============================
 // CONSTRUCTORS
@@ -69,6 +70,45 @@ void View::draw_vesicle()
     glutWireSphere(m_vesicle_radius, m_detail_x, m_detail_y);
 }
 
+void View::draw_legend()
+{
+    // Save the current matrix
+    glPushMatrix();
+
+    // Switch to 2D mode
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, m_width, 0, m_height);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    // Draw the text for each molecule type
+    int y = m_height - 30; // Start 30 pixels from the top
+    for (auto &&ident : m_simulation.m_ident_molecules)
+    {
+        // Calculate the number of molecules of this type
+        int count = std::count_if(m_simulation.m_molecules.begin(), m_simulation.m_molecules.end(),
+                                  [&ident](const Molecule &m) { return m.ident == ident; });
+
+        // Draw the text
+        glColor3f(1.0, 1.0, 1.0);
+        glRasterPos2f(20, y);
+        std::string text = m_simulation.m_names[ident] + ": " + std::to_string(count);
+        glutBitmapString(GLUT_BITMAP_HELVETICA_18, reinterpret_cast<const unsigned char *>(text.c_str()));
+
+        y -= 20; // Move down 20 pixels for the next line
+    }
+
+    // Restore the original matrix
+    glPopMatrix();
+
+    // Reset the rendering context
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.0, (float)m_width / (float)m_height, 1.0, 2000.0);
+    glMatrixMode(GL_MODELVIEW);
+}
+
 void View::draw_molecules()
 {
     for (Molecule m : m_simulation.m_molecules)
@@ -96,6 +136,18 @@ void View::draw_scene()
 
     draw_vesicle();
     draw_molecules();
+
+    // Save the current matrix and switch to 2D mode
+    glPushMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, m_width, 0, m_height);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    draw_legend();
+
+    glPopMatrix();
 
     glutSwapBuffers();
 }

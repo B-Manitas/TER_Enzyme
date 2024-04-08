@@ -1,5 +1,6 @@
 #include <map>
 #include "enums.hpp"
+#include <string>
 
 #ifndef TYPES_HPP
 #define TYPES_HPP
@@ -125,6 +126,9 @@ struct Molecule
 {
     // The type identifier of the molecule
     int ident = 0;
+
+    // The name of the molecule
+    std::string name = "";
 
     // The diameter and speed of the molecule
     float diameter = 1, speed = 1;

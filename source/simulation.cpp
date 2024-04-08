@@ -171,6 +171,7 @@ void Simulation::init_molecules()
         for (int j = 0; j < std::get<0>(i.second); j++)
         {
             Molecule molecule = Molecule(i.first);
+            molecule.name = m_ident_molecules[i.first];
             molecule.diameter = std::get<1>(i.second);
             molecule.speed = std::get<2>(i.second);
 
@@ -269,6 +270,16 @@ void Simulation::read_file(char *data_path)
     Parser parser = Parser();
 
     parser.parse(lexer.lex_all(fp), m_reactions, m_instructions);
+
+    for (int i=0; i < lexer.m_HASH_SIZE; i++)
+    {
+        if (lexer.m_table[i] != NULL)
+        {
+            // std::string molecule_name = ;
+            m_names[i] = std::string(lexer.m_table[i]);
+        }
+    }
+
     fclose(fp);
 }
 
@@ -284,6 +295,8 @@ Simulation &Simulation::operator=(const Simulation &other)
         m_molecules = other.m_molecules;
         m_ident_molecules = other.m_ident_molecules;
         max_diameter = other.max_diameter;
+        m_inverse_direction = other.m_inverse_direction;
+        m_names = other.m_names;
     }
     return *this;
 }
