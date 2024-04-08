@@ -1,11 +1,16 @@
-E1 : s -> i | 200uM - 100;
-E2 : s -> p | 300mM - 80;
-init(E1) = 200;
-init(E2) = 200;
-init(s) = 200;
-diametre(s) = 1;
-diametre(E1) = 1;
-diametre(E2) = 1;
-vitesse(E1) = 1;
-vitesse(E2) = 2;
-vitesse(s) = 3;
+E1 : s -> i | 200 uM - 100;
+E2 : i -> p | 300 uM - 80;
+
+init (E1) = 30;
+init (E2) = 50;
+init (s) = 500;
+
+diametre (E1) = 1;
+diametre (E2) = 0.9;
+
+vitesse (E1) = 0.1;
+vitesse (E2) = 0.11;
+
+diametre (s) = 0.1;
+diametre (i) = 0.1;
+diametre (p) = 0.1;
