@@ -1,0 +1,16 @@
+"fluoren-9-ol dehydrogenase" : "9-fluorenol" -> NADPH | 200 uM - 100;
+"alcohol dehydrogenase" : NADPH -> "4-nitrophenol" | 300 uM - 80;
+
+init ("fluoren-9-ol dehydrogenase") = 30;
+init ("alcohol dehydrogenase") = 50;
+init ("9-fluorenol") = 500;
+
+diametre ("fluoren-9-ol dehydrogenase") = 1;
+diametre ("alcohol dehydrogenase") = 0.9;
+
+vitesse ("fluoren-9-ol dehydrogenase") = 0.1;
+vitesse ("alcohol dehydrogenase") = 0.11;
+
+diametre ("9-fluorenol") = 0.1;
+diametre (NADPH) = 0.1;
+diametre ("4-nitrophenol") = 0.1;

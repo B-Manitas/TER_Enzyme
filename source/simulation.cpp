@@ -205,13 +205,14 @@ void Simulation::init_molecules()
 {
     m_map_instructions = __map_instructions();
     int idx = 0;
+    int type_molecule = 0;
 
     for (auto &&i : m_map_instructions)
     {
         for (int j = 0; j < std::get<0>(i.second); j++)
         {
             Molecule molecule = Molecule(i.first);
-            molecule.name = m_ident_molecules[i.first];
+            molecule.name = m_ident_molecules[type_molecule];
             molecule.diameter = std::get<1>(i.second) ? std::get<1>(i.second) : molecule.diameter;
             molecule.speed = std::get<2>(i.second) ? std::get<2>(i.second) : molecule.speed;
             molecule.position = m_start_positions[idx];
@@ -219,6 +220,8 @@ void Simulation::init_molecules()
             m_molecules.push_back(molecule);
             idx++;
         }
+
+        type_molecule++;
     }
 }
 
