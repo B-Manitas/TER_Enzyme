@@ -38,6 +38,14 @@ private:
      */
     void __map_colors();
 
+    /**
+     * @brief Update the simulation
+     *
+     * @param value The value to update the simulation by
+     */
+    void update_simulation(int value);
+    static void static_update_simulation(int value);
+
 public:
     // ATTRIBUTES
     Simulation m_simulation;

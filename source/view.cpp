@@ -44,6 +44,8 @@ void View::init_opengl(int argc, char **argv)
 
     glMatrixMode(GL_MODELVIEW);
     glEnable(GL_DEPTH_TEST);
+
+    glutTimerFunc(1000 / 60, [](int value) { View::instance().update_simulation(value); }, 0);
 }
 
 void View::display()
@@ -92,7 +94,7 @@ void View::draw_legend()
 
     y -= 30; // Move down 20 pixels for the next line
 
-    // Draw the text for each molecule type
+    // Draw the text and color circle for each molecule type
     for (auto &&ident : m_simulation.m_ident_molecules)
     {
         // Calculate the number of molecules of this type
@@ -100,8 +102,11 @@ void View::draw_legend()
                                   [&ident](const Molecule &m)
                                   { return m.ident == ident; });
 
-        // Draw the text
-        glColor3f(1.0, 1.0, 1.0);
+        // Get the molecule color
+        std::tuple<float, float, float> color = m_colors[ident];
+        glColor3f(std::get<0>(color), std::get<1>(color), std::get<2>(color));
+
+        // Draw the molecule name and count
         glRasterPos2f(20, y);
         std::string text = m_simulation.m_names[ident] + ": " + std::to_string(count);
         glutBitmapString(GLUT_BITMAP_HELVETICA_18, reinterpret_cast<const unsigned char *>(text.c_str()));
@@ -185,6 +190,24 @@ void View::__map_colors()
                 if (id_color == n_colors - 1)
                     break;
             }
+}
+
+// ============================
+// SIMULATION FUNCTIONS
+
+void View::static_update_simulation(int value) {
+    View::instance().update_simulation(value);
+}
+
+void View::update_simulation(int value) {
+    // Mettre à jour la simulation ici
+    m_simulation.move_all_molecules();
+
+    // Redessiner la scène
+    glutPostRedisplay();
+
+    // Réenregistrer la fonction de rappel de temporisation
+    glutTimerFunc(1000 / 60, static_update_simulation, 0);
 }
 
 // ============================
