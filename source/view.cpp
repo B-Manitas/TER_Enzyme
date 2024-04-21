@@ -24,7 +24,7 @@ void View::init_opengl(int argc, char **argv)
     glutInitWindowSize(m_width, m_height);
 
     // Set the window's title
-    glutCreateWindow("Diabetic Simulation");
+    glutCreateWindow("TER - Simulation Stochastique");
 
     // Set the display function
     glutDisplayFunc(View::static_draw_scene);
